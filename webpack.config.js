@@ -5,8 +5,9 @@ var config = {
        filename: 'index.js',
     },
     devServer: {
+       historyApiFallback: true,
        inline: true,
-       port: 8080
+       port: 8686
     },
     module: {
        rules: [
