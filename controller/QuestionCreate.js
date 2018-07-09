@@ -80,7 +80,7 @@ export default class QuestionCreate extends React.Component {
     }
 
     isValidData(formData) {
-      if(formData.htmlTitle === "" || formData.answers.length == 0) {
+      if(formData.htmlTitle === "" || formData.htmlTitle === "<p><br></p>" || formData.answers.length == 0) {
         alert("please input correct data!");
         return false;
       }
