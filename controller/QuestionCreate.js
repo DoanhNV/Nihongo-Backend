@@ -84,6 +84,17 @@ export default class QuestionCreate extends React.Component {
         alert("please input correct data!");
         return false;
       }
+      
+      var correctValueNumber = 0;
+      var checkBoxes = formData.checkBoxes;
+      for(var i = 0; i < checkBoxes.length; i++) {
+        correctValueNumber += checkBoxes[i].checked == true ? 1 : 0; 
+      }
+
+      if(correctValueNumber == 0) {
+        alert("Question need at least 1 correct answer!");
+        return false;
+      }
       return true;
     }
 
