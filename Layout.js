@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Menu from './menu.js';
+import Menu from './Menu.js';
 import HeaderBody from './HeaderBody';
 
 const Layout = (props) => ({

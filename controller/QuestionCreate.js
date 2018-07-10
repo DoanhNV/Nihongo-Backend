@@ -25,7 +25,7 @@ export default class QuestionCreate extends React.Component {
 
     handleSubmit(e) {
       var formData = this.getFormData();
-      var createQuestionURL = "http://localhost:8282/mvcquestion/create";
+      var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
       if(this.isValidData(formData)) {
         var data  = this.preparePostData(formData);
         console.log(data)
@@ -47,8 +47,8 @@ export default class QuestionCreate extends React.Component {
     postToServer(url, data) {
       Axios.post(url, data).then (
           res => {
-          console.log("response: " + res);
-          var alertStr = res.code == 0 ? "Insert success!" : "Insert Fail!";
+          console.log("response: " + res.data);
+          var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
           alert(alertStr);
       }).catch(error => {
           alert("Server Error!");
