@@ -72,7 +72,7 @@ export default class QuestionCreate extends React.Component {
       }
 
       return {
-        htmlTitle : htmlTitle,
+        htmlTitle : htmlTitle.replace(/"/g, "'"),
         checkBoxes : checkBoxes,
         contents : contents,
         answers : answers
