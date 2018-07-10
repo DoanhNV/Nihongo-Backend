@@ -25,7 +25,7 @@ export default class Menu extends React.Component {
                                 <span>Question</span>
                                 <span class="menu-arrow arrow_carrot-right"></span>
                             </a>
-                            <ul>
+                            <ul class="sub">
                                 <li><a class="" href="/question/create">Create</a></li>
                                 <li><a class="" href="/question/list">Question list</a></li>
                             </ul>
