@@ -7,8 +7,8 @@ const Layout = (props) => ({
     render() {
         return (
             <section id="container" class="">
-                <HeaderBody></HeaderBody>
-                <Menu></Menu>
+                <HeaderBody/>
+                <Menu/>
                 {/* <!--main content start--> */}
                 <section id="main-content">
                     <section class="wrapper">
