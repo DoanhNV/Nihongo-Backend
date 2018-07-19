@@ -57,26 +57,42 @@ export default class QuestionCreate extends React.Component {
 
 
     getFormData() {
-      var htmlTitle = ReactDOM.findDOMNode(document.getElementById("editor")).innerHTML;
-      var checkBoxes = document.querySelectorAll("#isCorrects");
+      var htmlTitle = "";
+      htmlTitle += ReactDOM.findDOMNode(document.getElementById("editor")).innerHTML;
+      var isCorrectValues = document.querySelectorAll(".isCorrects");
       var contents = document.querySelectorAll("#answers");
       var answers = [];
-      
-      for(var i = 0; i < checkBoxes.length; i++) {
+      var domContent = $.parseHTML(htmlTitle);
+      var innerText = domContent != null ? domContent[0].innerText : "";
+      htmlTitle = this.isHTML(innerText) ? innerText : htmlTitle;
+
+      for(var i = 0; i < isCorrectValues.length; i++) {
         if(contents[i].value === "") {
           answers = [];
           break;
         }
-        var answer = {isCorrect : checkBoxes[i].checked, content : contents[i].value};
+        var answer = {isCorrect : isCorrectValues[i].checked, content : contents[i].value};
         answers.push(answer);
       }
 
+      
       return {
         htmlTitle : htmlTitle.replace(/"/g, "'"),
-        checkBoxes : checkBoxes,
+        isCorrectValues : isCorrectValues,
         contents : contents,
         answers : answers
       }
+    }
+
+    isHTML(str) {
+      var a = document.createElement('div');
+      a.innerHTML = str;
+    
+      for (var c = a.childNodes, i = c.length; i--; ) {
+        if (c[i].nodeType == 1) return true; 
+      }
+    
+      return false;
     }
 
     isValidData(formData) {
@@ -86,9 +102,9 @@ export default class QuestionCreate extends React.Component {
       }
       
       var correctValueNumber = 0;
-      var checkBoxes = formData.checkBoxes;
-      for(var i = 0; i < checkBoxes.length; i++) {
-        correctValueNumber += checkBoxes[i].checked == true ? 1 : 0; 
+      var isCorrectValues = formData.isCorrectValues;
+      for(var i = 0; i < isCorrectValues.length; i++) {
+        correctValueNumber += isCorrectValues[i].checked == true ? 1 : 0; 
       }
 
       if(correctValueNumber == 0) {
@@ -126,9 +142,10 @@ export default class QuestionCreate extends React.Component {
                         {
                           Array(this.state.initData.defaultAnswerNumber).fill(2).map((i) => {
                             return (
-                                  <div class="checkbox">
+                                  <div class="radio">
                                     <label>
-                                        <input id="isCorrects" type="checkbox" value=""/>  <input class=" form-control" id="answers" name="answers" type="text"/>
+                                      <input type="radio" name="correctvalues"  class="isCorrects" value={i}/>
+                                      <input class=" form-control" id="answers" name="answers" type="text"/>
                                     </label>
                                   </div>
                               );
@@ -184,8 +201,7 @@ const initData = {
     {name : "Vocabulary", value : 2},
     {name : "Synonym", value : 3},
     {name : "Fill into braces", value : 4},
-    {name : "Replace star", value : 5},
-    {name : "Reading - Understanding", value : 6}
+    {name : "Replace star", value : 5}
   ],
   defaultLevel : [
     {name : "Beginer", value : 0},
