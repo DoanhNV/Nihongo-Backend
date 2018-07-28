@@ -9903,3 +9903,11 @@ span.customSelect.changed {
 #sendmessage.show, #errormessage.show, .show {
 	display:block;
 }
+
+.hide {
+    display: none;
+}
+
+.show {
+    display: block;
+}

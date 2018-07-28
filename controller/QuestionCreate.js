@@ -10,49 +10,96 @@ export default class QuestionCreate extends React.Component {
           title : "",
           answers : [],
           topic : 0,
-          level : 0
+          level : 0,
+          subTitle: "",
+          documentFileName : "",
+          topicMode : 0,
+          textAudioQuestion : ""
         }
 
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleUploadImage = this.handleUploadImage.bind(this);
+        this.handleTextAudioQuestionChange = this.handleTextAudioQuestionChange.bind(this);
     }
 
     handleChange(e) {
       var name = e.target.name;
       var value = e.target.value;
+      if(e.target.type === "select-one") {
+        this.state.topicMode = e.target.value;
+      }
       this.setState({ [name] : value});
     }
 
-    handleSubmit(e) {
+    handleTextAudioQuestionChange(e) {
+      $("#base64").val("");
+      var imgaeTag = document.getElementById("previewImage");
+      imgaeTag.src = "";
+      imgaeTag.className = "hide";
+    }
+
+    async handleSubmit(e) {
       var formData = this.getFormData();
+      var uploadFileURL = "http://35.240.130.216:6868/file/upload/base64";
       var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
+      var base64Data =  $("#base64").val();
+      alert(base64Data);
       if(this.isValidData(formData)) {
-        var data  = this.preparePostData(formData);
-        console.log(data)
-        this.postToServer(createQuestionURL, data);
+        var uploadData = this.prepareUploadImageData();
+        if( this.state.topicMode == 7 && base64Data != "") {
+          alert("Upload insert");
+          var uploadResponse = this.uploadFileToServer(uploadFileURL, uploadData);
+          uploadResponse.then(res => {
+            console.log("uploadFile: " +  res.data.code);
+            var data  = this.preparePostData(formData, res.data.filePath);
+            console.log(data);
+            this.postToServer(createQuestionURL, data);
+          }).catch(error => {
+            alert("Server Error!");
+          });
+        } else {
+          alert("Text insert");
+          var data  = this.preparePostData(formData, this.state.textAudioQuestion);
+          alert("Text insert 2");
+          console.log(data);
+          this.postToServer(createQuestionURL, data);
+        }
       }
       e.preventDefault();
     }
 
-    preparePostData(formData) {
+    prepareUploadImageData() {
+      return {
+        base64Stream : $("#base64").val().split(",")[1],
+        fileName : this.state.documentFileName,
+        fileType : this.state.initData.UPLOAD_IMAGE_TYPE
+      }
+    }
+
+    preparePostData(formData, documentData) {
       return {
         title : formData.htmlTitle,
         topic : this.state.topic,
         level : this.state.level,
         answers: formData.answers,
-        headers: {autorizacion: localStorage.token}
+        titleSub : this.state.subTitle,
+        document : documentData
       }
     }
 
     postToServer(url, data) {
       Axios.post(url, data).then (
           res => {
-          console.log("response: " + res.data);
           var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
           alert(alertStr);
       }).catch(error => {
           alert("Server Error!");
       });
+    }
+
+    async uploadFileToServer(url, data) {
+      return await Axios.post(url, data);
     }
 
 
@@ -65,6 +112,7 @@ export default class QuestionCreate extends React.Component {
       var domContent = $.parseHTML(htmlTitle);
       var innerText = domContent != null ? domContent[0].innerText : "";
       htmlTitle = this.isHTML(innerText) ? innerText : htmlTitle;
+      htmlTitle = this.state.topicMode == 7 ? htmlTitle.replace(/<p>/g, "").replace(/<[/]p>/g, "") : htmlTitle;
 
       for(var i = 0; i < isCorrectValues.length; i++) {
         if(contents[i].value === "") {
@@ -114,6 +162,23 @@ export default class QuestionCreate extends React.Component {
       return true;
     }
 
+    handleUploadImage() {
+      var fileList = $("#documentImage")[0].files;
+      if (fileList && fileList[0]) {
+        var fileReader = new FileReader();
+        fileReader.addEventListener("load", function(e) {
+          var imgaeTag = document.getElementById("previewImage");
+          imgaeTag.src = e.target.result;
+          imgaeTag.className = "show";
+          $("#base64").val(e.target.result);
+          $("#textAudioQ").val("");
+        }); 
+        fileReader.readAsDataURL(fileList[0]);
+        this.state.documentFileName = fileList[0].name;
+      }
+    }
+    
+
     render() {
         return (
         <div class="row">
@@ -136,6 +201,31 @@ export default class QuestionCreate extends React.Component {
                       </div>
                     </section>
                     </div>
+                    {/* Sub title */}
+                    <div id="subTitleDiv" class="form-group">
+                        <label class="control-label col-lg-1" for="exampleInputFile">Sub for Question</label>
+                        <div class="col-lg-10">
+                          <input type="text" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
+                        </div>
+                    </div>
+                    {/* Text audio */}
+                    <div id="subTitleDiv" class="form-group">
+                        <label class="control-label col-lg-1" for="exampleInputFile">Text audio question</label>
+                        <div class="col-lg-10">
+                          <input type="text" id="textAudioQ" name="textAudioQuestion" class="form-control" onChange={e => {this.handleTextAudioQuestionChange(e); this.handleChange(e)}} placeholder="placeholder" />
+                        </div>
+                    </div>
+                    {/* Upload image  document */}
+                    <div id="uploadImageDiv" class="form-group">
+                        <label class="control-label col-lg-1" for="exampleInputFile">Image audio question</label>
+                        <div class="col-lg-10">
+                          <input type="file" id="documentImage" onChange={this.handleUploadImage} accept="image/*"/>
+                          <br/>
+                          <img id="previewImage" height="150" class="hide"/>
+                        </div>
+                        <input type="hidden" id="base64"/>
+                    </div>
+                    {/* Answers */}
                     <div class="form-group">
                       <label class="control-label col-lg-1" for="inputSuccess"><b>Answer</b></label>
                       <div class="col-lg-10">
@@ -156,7 +246,7 @@ export default class QuestionCreate extends React.Component {
                     {/* Topic */}
                     <div class="form-group">
                       <label class="control-label col-lg-1" for="inputSuccess"><b>Topic</b></label>
-                      <div class="col-lg-10">
+                      <div class="col-lg-4">
                         <select name="topic" class="form-control m-bot15" onChange={this.handleChange}>
                             {this.state.initData.defaultTopic.map((topic) => {
                               return <option value={topic.value}>{topic.name}</option>
@@ -169,7 +259,7 @@ export default class QuestionCreate extends React.Component {
                     {/* Level */}
                     <div class="form-group">
                       <label class="control-label col-lg-1" for="inputSuccess"><b>Level</b></label>
-                      <div class="col-lg-10">
+                      <div class="col-lg-4">
                         <select name="level" class="form-control m-bot15" onChange={this.handleChange}>
                             {this.state.initData.defaultLevel.map((level) => {
                               return <option value={level.value}>{level.name}</option>
@@ -201,7 +291,8 @@ const initData = {
     {name : "Vocabulary", value : 2},
     {name : "Synonym", value : 3},
     {name : "Fill into braces", value : 4},
-    {name : "Replace star", value : 5}
+    {name : "Replace star", value : 5},
+    {name : "Listen and answer", value : 7}
   ],
   defaultLevel : [
     {name : "Beginer", value : 0},
@@ -210,6 +301,7 @@ const initData = {
     {name : "N3", value : 3},
     {name : "N4", value : 4},
     {name : "N5", value : 5}
-  ]
+  ],
+  UPLOAD_IMAGE_TYPE : 0
 }
 
