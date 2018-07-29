@@ -33,10 +33,15 @@ export default class QuestionCreate extends React.Component {
     }
 
     handleTextAudioQuestionChange(e) {
+      this.clearImageField();
+    }
+
+    clearImageField() {
       $("#base64").val("");
       var imgaeTag = document.getElementById("previewImage");
       imgaeTag.src = "";
       imgaeTag.className = "hide";
+      $("#documentImage").val("");
     }
 
     async handleSubmit(e) {
@@ -44,11 +49,9 @@ export default class QuestionCreate extends React.Component {
       var uploadFileURL = "http://35.240.130.216:6868/file/upload/base64";
       var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
       var base64Data =  $("#base64").val();
-      alert(base64Data);
       if(this.isValidData(formData)) {
         var uploadData = this.prepareUploadImageData();
         if( this.state.topicMode == 7 && base64Data != "") {
-          alert("Upload insert");
           var uploadResponse = this.uploadFileToServer(uploadFileURL, uploadData);
           uploadResponse.then(res => {
             console.log("uploadFile: " +  res.data.code);
@@ -59,9 +62,7 @@ export default class QuestionCreate extends React.Component {
             alert("Server Error!");
           });
         } else {
-          alert("Text insert");
           var data  = this.preparePostData(formData, this.state.textAudioQuestion);
-          alert("Text insert 2");
           console.log(data);
           this.postToServer(createQuestionURL, data);
         }
@@ -93,13 +94,26 @@ export default class QuestionCreate extends React.Component {
           res => {
           var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
           alert(alertStr);
+          this.clearData();
       }).catch(error => {
-          alert("Server Error!");
+          alert("Server Error!: " + error);
       });
     }
 
     async uploadFileToServer(url, data) {
       return await Axios.post(url, data);
+    }
+
+    clearData() {
+      ReactDOM.findDOMNode(document.getElementById("editor")).innerHTML = "";
+      var contents = document.querySelectorAll("#answers");
+      for(var i = 0; i < contents.length; i++) {
+        contents[i].value = "";
+      }
+      $("#subTitleID").val("");
+      $("#textAudioQ").val("");
+      $("#documentImage").val("");
+      this.clearImageField();
     }
 
 
@@ -205,7 +219,7 @@ export default class QuestionCreate extends React.Component {
                     <div id="subTitleDiv" class="form-group">
                         <label class="control-label col-lg-1" for="exampleInputFile">Sub for Question</label>
                         <div class="col-lg-10">
-                          <input type="text" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
+                          <input type="text" id="subTitleID" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
                         </div>
                     </div>
                     {/* Text audio */}
