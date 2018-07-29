@@ -37,6 +37,7 @@
 .pagination a.active {
     background-color: #4CAF50;
     color: white;
+    border-radius: 5px;
 }
 
 .pagination a:hover:not(.active) {background-color: #ddd;}
@@ -45,4 +46,8 @@
 
 .paging-container {
     text-align: center;
+}
+
+.table-display {
+    width: 100%;
 }
