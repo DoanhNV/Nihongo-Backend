@@ -1,0 +1,48 @@
+.question-title {
+    padding: 5px !important;
+    text-align: justify !important;
+}
+
+.question-sub {
+    color: red;
+}
+
+.group-title {
+    font-weight: bold;
+    color: black;
+}
+
+.query-area {
+    background-color: #ffffff;
+}
+
+.question-list-query {
+    height: 100px;
+    margin: 15px;
+    padding: 5px;
+    margin-top: 5px;
+}
+/* Pageing start */
+.pagination {
+    display: inline-block;
+}
+
+.pagination a {
+    color: black;
+    float: left;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+.pagination a.active {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
+/* Paging end */
+
+.paging-container {
+    text-align: center;
+}
