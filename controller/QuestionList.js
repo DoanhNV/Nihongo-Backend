@@ -6,19 +6,36 @@ export default class QuestionList extends React.Component {
       super(props);
       this.state = {
         initData : initData,
-        topic : 7,
-        level : 0,
+        topic : -1,
+        level : -1,
         skip : 0,
-        take : 10,
+        take : 1,
         fieldName : "_id",
         order : -1,
         questions : [],
-        total : 0 
+        total : 0,
+        currentPage : 11
       }
       this.initPage();
+      this.handleChange = this.handleChange.bind(this);
+      this.handleSearch = this.handleSearch.bind(this);
+    }
+
+    handleSearch() {
+      this.search();
+    }
+
+    handleChange(e) {
+      var name = e.target.name;
+      var value = e.target.value;
+      this.setState({ [name] : value});
     }
 
     initPage() {
+      this.search();
+    }
+
+    search() {
       var url = "http://localhost:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
@@ -29,8 +46,6 @@ export default class QuestionList extends React.Component {
         res => {
         this.state.questions = res.data.questions;
         this.state.total = res.data.total;
-        console.log(this.state.questions);
-        console.log(this.state.total);
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
@@ -48,6 +63,54 @@ export default class QuestionList extends React.Component {
           order : this.state.order
         }
       }
+    }
+
+    displayDocument(question) {
+      var isImage = question.document.endsWith(".png");
+      if(isImage) {
+        return (<p><img id="previewImage" height="70" class="show"/></p>)
+      } else {
+        return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
+      }
+    }
+
+    paging() {
+      var pageTags = "<div>";
+      var postPerPage = 1;
+      var currentPage = this.state.currentPage;
+      var total = this.state.total;
+      var pageNumber = total /  postPerPage;
+      pageNumber = total % postPerPage == 0 ? pageNumber : pageNumber + 1;
+      
+      if(pageNumber != 0) {
+        pageTags += '<a href="#">First</a>';
+      }
+      if(currentPage > 1) {
+        pageTags += '<a href="#">&laquo;</a>';
+      }
+      for(var i = currentPage - 3; i <= currentPage + 3; i++) {
+        if(i == currentPage - 3 && i >= 1) {
+          pageTags += '<a href="#">...</a>';
+        }
+        if(i > 0 && currentPage - 2 <= i && i <= currentPage + 2 && 1 <= i && i <= total) {
+          if(i == currentPage) {
+            pageTags += '<a href="#" class="active">' + i + '</a>';
+          } else {
+            pageTags += '<a href="#">' + i + '</a>';
+          }
+        }
+        if(i == currentPage + 3 && i <= total) {
+          pageTags += '<a href="#">...</a>';
+        }
+      }
+      if(currentPage < total) {
+        pageTags += '<a href="#">&raquo;</a>';
+      }
+      if(pageNumber != 0) {
+        pageTags += '<a href="#">Last</a>';
+      }
+      pageTags += "</div>";
+      return  <div dangerouslySetInnerHTML={{__html: pageTags}} />
     }
     
     render() {
@@ -83,19 +146,19 @@ export default class QuestionList extends React.Component {
                       </tr>
                       <tr>
                         <td> 
-                           {/* Level */}
+                           {/* Sort */}
                            <div class="form-group">
                               <label class="control-label col-lg-2" for="inputSuccess"><b>Sort by</b></label>
                               <div class="col-lg-3">
-                                <select name="level" class="form-control m-bot15" onChange={this.handleChange}>
+                                <select name="fieldName" class="form-control m-bot15" onChange={this.handleChange}>
                                     {this.state.initData.sortObject.map((level) => {
                                       return <option value={level.value}>{level.field}</option>
                                     })}
                                 </select>
                               </div>
                               <div class="col-lg-3">
-                                <input type="radio" name="order" value="1"/> ASC &nbsp; &nbsp;
-                                <input type="radio" name="order" value="-1" checked={true}/> DESC
+                                <input type="radio" name="order" value="1" onChange={this.handleChange}/> ASC &nbsp; &nbsp;
+                                <input type="radio" name="order" value="-1" onChange={this.handleChange} defaultChecked  /> DESC
                               </div>
                             </div>
                         </td>
@@ -118,7 +181,7 @@ export default class QuestionList extends React.Component {
                         <td>
                           <div class="form-group">
                             <div class="col-lg-offset-2 col-lg-1">
-                              <button class="btn btn-primary" type="submit">Search</button>
+                              <button class="btn btn-primary" type="submit" onClick={this.handleSearch}>Search</button>
                             </div>
                           </div>
                         </td>
@@ -128,12 +191,13 @@ export default class QuestionList extends React.Component {
                 </div>
               </div>
               <div class="col-lg-12">
+              
                 <section class="panel">
-                  {/* <div class="row query-area question-list-query">
-                      sdfsfd
-                  </div> */}
+                  <div class="row">
+                      <div class="col-lg-10"></div><div class="col-lg-2"><span>Total: {this.state.total}</span></div>
+                  </div>
                   {/* item */}
-                  <div class="panel-body">
+                  <div class="panel-body panel-body-nihongo">
                     {
                       this.state.questions.map((question) => {
                         return (
@@ -149,21 +213,42 @@ export default class QuestionList extends React.Component {
                                         {/* Answer */}
                                         <h1 class="group-title">Answers</h1>
                                         <div class="row">
-                                            <div class="col-lg-6">
-                                                <p><span>First Name </span>: Jenifer </p>
-                                            </div>
+                                            { 
+                                              question.answers.map((answer) => {
+                                                return (
+                                                  <div class="col-lg-6">
+                                                      <p class="small-font"><span>{answer.content}</span>: {answer.isCorrect ? "Correct" : "Incorrect"} </p>
+                                                  </div>
+                                                );
+                                              })
+                                            }
                                         </div>
                                         {/* Infomation */}
                                         <h1 class="group-title">Infomations</h1>
                                         <div class="row">
                                             <div class="col-lg-6">
                                               <p>
-                                                <span>Level </span>: {question.topic} <br/>
-                                                <span>Topic </span>: {question.level}
+                                                <span>Level: </span> 
+                                                {
+                                                  this.state.initData.defaultTopic.map((topic) => {
+                                                    if(question.topic == topic.value) {
+                                                      return (topic.name);
+                                                    }
+                                                  })
+                                                } 
+                                                <br/>
+                                                <span>Topic: </span>
+                                                {
+                                                  this.state.initData.defaultLevel.map((level) => {
+                                                    if(question.level == level.value) {
+                                                      return (level.name);
+                                                    }
+                                                  })
+                                                } 
                                               </p>
                                             </div>
                                             <div class="col-lg-6">
-                                                <p><img id="previewImage" height="70" class="show"/></p>
+                                              {this.displayDocument(question)}
                                             </div>
                                         </div>
                                     </div>
@@ -174,20 +259,9 @@ export default class QuestionList extends React.Component {
                         )
                       })
                     }
-                    
                     <div class="row paging-container">
                       <div class="pagination">
-                        <a href="#">First</a>
-                        <a href="#">&laquo;</a>
-                        <a href="#">...</a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#" class="active">4</a>
-                        <a href="#">5</a>
-                        <a href="#">6</a>
-                        <a href="#">...</a>
-                        <a href="#">&raquo;</a>
-                        <a href="#">Last</a>
+                        {this.paging()}
                       </div>
                     </div>
                   </div>
