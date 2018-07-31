@@ -19,10 +19,37 @@ export default class QuestionList extends React.Component {
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
+      this.handlePageSearch = this.handlePageSearch.bind(this);
     }
 
     handleSearch() {
       this.search();
+    }
+
+    handlePageSearch(e, page) {
+      this.changeSkipTake();
+      this.search();
+      e.preventDefault();
+    }
+
+    changeSkipTake() {
+      var changeNumber = e.currentTarget.dataset.tag;
+      var currentPage = this.state.currentPage;
+      var skip = this.state.skip;
+      var pageNumber = total /  postPerPage;
+      pageNumber = total % postPerPage == 0 ? pageNumber : pageNumber + 1;
+      if(changeNumber === "encrease") {
+        currentPage++;
+      } else if(changeNumber === "decrease") {
+        currentPage--;
+      } else {
+        currentPage = changeNumber;
+      }
+      
+      if(0 < currentPage  && currentPage <= pageNumber) {
+        skip = (currentPage - 1) * this.state.take;
+      }
+      this.state.skip = skip;
     }
 
     handleChange(e) {
@@ -73,44 +100,46 @@ export default class QuestionList extends React.Component {
         return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
       }
     }
+    
 
     paging() {
-      var pageTags = "<div>";
       var postPerPage = 1;
       var currentPage = this.state.currentPage;
       var total = this.state.total;
       var pageNumber = total /  postPerPage;
       pageNumber = total % postPerPage == 0 ? pageNumber : pageNumber + 1;
-      
-      if(pageNumber != 0) {
-        pageTags += '<a href="#">First</a>';
-      }
-      if(currentPage > 1) {
-        pageTags += '<a href="#">&laquo;</a>';
-      }
-      for(var i = currentPage - 3; i <= currentPage + 3; i++) {
-        if(i == currentPage - 3 && i >= 1) {
-          pageTags += '<a href="#">...</a>';
+      let tagElements = [];
+      if(pageNumber > 1) {
+        if(pageNumber != 0) {
+          tagElements.push(<a href="#" data-tag="1" onClick={(e) => {this.handlePageSearch(e, 1)}}>First</a>);
         }
-        if(i > 0 && currentPage - 2 <= i && i <= currentPage + 2 && 1 <= i && i <= total) {
-          if(i == currentPage) {
-            pageTags += '<a href="#" class="active">' + i + '</a>';
-          } else {
-            pageTags += '<a href="#">' + i + '</a>';
+        if(currentPage > 1) {
+          tagElements.push(<a href="#" data-tag="decrease" onClick={(e) => {this.handlePageSearch(e, "decrease")}}>&laquo;</a>)
+        }
+        for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+          if(i == currentPage - 3 && i >= 1) {
+            tagElements.push(<a>...</a>)
+          }
+          if(i > 0 && currentPage - 2 <= i && i <= currentPage + 2 && 1 <= i && i <= pageNumber) {
+            if(i == currentPage) {
+              tagElements.push(<a href="#" data-tag={i} onClick={(e) => {this.handlePageSearch(e, i)}} class="active">{i}</a>)
+            } else {
+              tagElements.push(<a href="#" data-tag={i} onClick={(e) => {this.handlePageSearch(e, i)}}>{i}</a>)
+            }
+          }
+          if(i == currentPage + 3 && i <= pageNumber) {
+            tagElements.push(<a>...</a>)
           }
         }
-        if(i == currentPage + 3 && i <= total) {
-          pageTags += '<a href="#">...</a>';
+        if(currentPage < pageNumber) {
+          tagElements.push(<a href="#" data-tag="encrease" onClick={(e) => {this.handlePageSearch(e, "encrease")}}>&raquo;</a>)
+        }
+        if(pageNumber != 0) {
+          tagElements.push(<a href="#" data-tag={pageNumber} onClick={(e) => {this.handlePageSearch(e, pageNumber)}}>Last</a>)
         }
       }
-      if(currentPage < total) {
-        pageTags += '<a href="#">&raquo;</a>';
-      }
-      if(pageNumber != 0) {
-        pageTags += '<a href="#">Last</a>';
-      }
-      pageTags += "</div>";
-      return  <div dangerouslySetInnerHTML={{__html: pageTags}} />
+      //<div dangerouslySetInnerHTML={{__html: pageTags}} />
+      return  <div>{tagElements}</div>
     }
     
     render() {
