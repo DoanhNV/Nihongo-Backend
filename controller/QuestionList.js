@@ -104,6 +104,9 @@ export default class QuestionList extends React.Component {
     }
 
     fillImage(question) {
+      if(question.document === null) {
+        return ("");
+      }
       var isImage = question.document.endsWith(".png");
       var uploadFileURL = "http://localhost:6868/file/load/base64";
       var documentFile = { filePath : question.document};
