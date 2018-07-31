@@ -9,12 +9,13 @@ export default class QuestionList extends React.Component {
         topic : -1,
         level : -1,
         skip : 0,
-        take : 1,
+        take : initData.TAKE_NUMBER,
         fieldName : "_id",
         order : -1,
         questions : [],
         total : 0,
-        currentPage : 11
+        currentPage : 1,
+        postPerPage : initData.TAKE_NUMBER
       }
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
@@ -27,17 +28,18 @@ export default class QuestionList extends React.Component {
     }
 
     handlePageSearch(e, page) {
-      this.changeSkipTake();
+      this.changeSkipTake(e);
       this.search();
       e.preventDefault();
     }
 
-    changeSkipTake() {
+    changeSkipTake(e) {
       var changeNumber = e.currentTarget.dataset.tag;
       var currentPage = this.state.currentPage;
       var skip = this.state.skip;
-      var pageNumber = total /  postPerPage;
-      pageNumber = total % postPerPage == 0 ? pageNumber : pageNumber + 1;
+      var pageNumber = Math.floor(this.state.total /  this.state.postPerPage);
+      pageNumber = this.state.total % this.state.postPerPage == 0 ? pageNumber : pageNumber + 1;
+
       if(changeNumber === "encrease") {
         currentPage++;
       } else if(changeNumber === "decrease") {
@@ -45,10 +47,10 @@ export default class QuestionList extends React.Component {
       } else {
         currentPage = changeNumber;
       }
-      
       if(0 < currentPage  && currentPage <= pageNumber) {
         skip = (currentPage - 1) * this.state.take;
       }
+      this.state.currentPage = currentPage;
       this.state.skip = skip;
     }
 
@@ -95,18 +97,33 @@ export default class QuestionList extends React.Component {
     displayDocument(question) {
       var isImage = question.document.endsWith(".png");
       if(isImage) {
-        return (<p><img id="previewImage" height="70" class="show"/></p>)
+        return (<img id={question.id} class="preview-image" height="70" class="show"/>)
       } else {
         return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
       }
     }
+
+    fillImage(question) {
+      var isImage = question.document.endsWith(".png");
+      var uploadFileURL = "http://localhost:6868/file/load/base64";
+      var documentFile = { filePath : question.document};
+      if(isImage) {
+        Axios.post(uploadFileURL, documentFile).then (
+          res => {
+          var idDom = "#" + question.id;
+          $(idDom).attr("src",res.data.base64Str);
+        }).catch(error => {
+            alert("Server Error!: " + error);
+        });
+      } 
+    }
     
 
     paging() {
-      var postPerPage = 1;
-      var currentPage = this.state.currentPage;
+      var postPerPage = this.state.postPerPage;
+      var currentPage = Number(this.state.currentPage);
       var total = this.state.total;
-      var pageNumber = total /  postPerPage;
+      var pageNumber = Math.floor(total /  postPerPage);
       pageNumber = total % postPerPage == 0 ? pageNumber : pageNumber + 1;
       let tagElements = [];
       if(pageNumber > 1) {
@@ -114,25 +131,20 @@ export default class QuestionList extends React.Component {
           tagElements.push(<a href="#" data-tag="1" onClick={(e) => {this.handlePageSearch(e, 1)}}>First</a>);
         }
         if(currentPage > 1) {
-          tagElements.push(<a href="#" data-tag="decrease" onClick={(e) => {this.handlePageSearch(e, "decrease")}}>&laquo;</a>)
+          tagElements.push(<a href="#" data-tag="decrease" onClick={(e) => {this.handlePageSearch(e)}}>&laquo;</a>)
         }
-        for(var i = currentPage - 2; i <= currentPage + 2; i++) {
+        for(var i = currentPage - 3; i <= currentPage + 3; i++) {
           if(i == currentPage - 3 && i >= 1) {
             tagElements.push(<a>...</a>)
-          }
-          if(i > 0 && currentPage - 2 <= i && i <= currentPage + 2 && 1 <= i && i <= pageNumber) {
-            if(i == currentPage) {
-              tagElements.push(<a href="#" data-tag={i} onClick={(e) => {this.handlePageSearch(e, i)}} class="active">{i}</a>)
-            } else {
-              tagElements.push(<a href="#" data-tag={i} onClick={(e) => {this.handlePageSearch(e, i)}}>{i}</a>)
-            }
-          }
-          if(i == currentPage + 3 && i <= pageNumber) {
+          } else if(currentPage - 2 <= i && i <= currentPage + 2 && 1 <= i && i <= pageNumber) {
+            var cssClass = i == currentPage ? "active" : "";
+            tagElements.push(<a href="#" data-tag={i} onClick={(e) => {this.handlePageSearch(e)}} class={cssClass}>{i}</a>)
+          } else if(i == currentPage + 3 && i <= pageNumber) {
             tagElements.push(<a>...</a>)
           }
         }
         if(currentPage < pageNumber) {
-          tagElements.push(<a href="#" data-tag="encrease" onClick={(e) => {this.handlePageSearch(e, "encrease")}}>&raquo;</a>)
+          tagElements.push(<a href="#" data-tag="encrease" onClick={(e) => {this.handlePageSearch(e)}}>&raquo;</a>)
         }
         if(pageNumber != 0) {
           tagElements.push(<a href="#" data-tag={pageNumber} onClick={(e) => {this.handlePageSearch(e, pageNumber)}}>Last</a>)
@@ -246,7 +258,7 @@ export default class QuestionList extends React.Component {
                                               question.answers.map((answer) => {
                                                 return (
                                                   <div class="col-lg-6">
-                                                      <p class="small-font"><span>{answer.content}</span>: {answer.isCorrect ? "Correct" : "Incorrect"} </p>
+                                                      <p class="small-font"><span>{answer.content}</span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
                                                   </div>
                                                 );
                                               })
@@ -278,6 +290,7 @@ export default class QuestionList extends React.Component {
                                             </div>
                                             <div class="col-lg-6">
                                               {this.displayDocument(question)}
+                                              {this.fillImage(question)}
                                             </div>
                                         </div>
                                     </div>
@@ -328,5 +341,6 @@ const initData = {
     {field : "topic", value : "topic"},
     {field : "level", value : "level"},
   ],
-  UPLOAD_IMAGE_TYPE : 0
+  UPLOAD_IMAGE_TYPE : 0,
+  TAKE_NUMBER : 10
 }
