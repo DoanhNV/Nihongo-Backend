@@ -65,7 +65,7 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/mvcquestion/search";
+      var url = "http://35.240.130.216:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
