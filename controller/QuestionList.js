@@ -95,29 +95,30 @@ export default class QuestionList extends React.Component {
     }
 
     displayDocument(question) {
-      var isImage = question.document.endsWith(".png");
-      if(isImage) {
-        return (<img id={question.id} class="preview-image" height="70" class="show"/>)
-      } else {
-        return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
+      if(question.document !== null) {
+        var isImage = question.document.endsWith(".png");
+        if(isImage) {
+          return (<img id={question.id} class="preview-image" height="70" class="show"/>)
+        } else {
+          return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
+        }
       }
     }
 
     fillImage(question) {
-      if(question.document === null) {
-        return ("");
-      }
-      var isImage = question.document.endsWith(".png");
-      var uploadFileURL = "http://localhost:6868/file/load/base64";
-      var documentFile = { filePath : question.document};
-      if(isImage) {
-        Axios.post(uploadFileURL, documentFile).then (
-          res => {
-          var idDom = "#" + question.id;
-          $(idDom).attr("src",res.data.base64Str);
-        }).catch(error => {
-            alert("Server Error!: " + error);
-        });
+      if(question.document !== null) {
+        var isImage = question.document.endsWith(".png");
+        var uploadFileURL = "http://localhost:6868/file/load/base64";
+        var documentFile = { filePath : question.document};
+        if(isImage) {
+          Axios.post(uploadFileURL, documentFile).then (
+            res => {
+            var idDom = "#" + question.id;
+            $(idDom).attr("src",res.data.base64Str);
+          }).catch(error => {
+              alert("Server Error!: " + error);
+          });
+        }
       } 
     }
     
