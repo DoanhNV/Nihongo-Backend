@@ -251,7 +251,7 @@ export default class QuestionList extends React.Component {
                             <div id="profile" class="tab-pane">
                                 <section class="panel"> 
                                     <div class="bio-graph-heading question-title">
-                                    {question.title}
+                                    <div dangerouslySetInnerHTML={{__html: question.title}} />
                                     </div>
                                     <div class="panel-body bio-graph-info">
                                         <p class="question-sub"><span>Sub </span>: {question.titleSub} </p>
