@@ -273,7 +273,7 @@ export default class QuestionList extends React.Component {
                                         <div class="row">
                                             <div class="col-lg-6">
                                               <p>
-                                                <span>Level: </span> 
+                                                <span>Topic: </span> 
                                                 {
                                                   this.state.initData.defaultTopic.map((topic) => {
                                                     if(question.topic == topic.value) {
@@ -282,7 +282,7 @@ export default class QuestionList extends React.Component {
                                                   })
                                                 } 
                                                 <br/>
-                                                <span>Topic: </span>
+                                                <span>Level: </span>
                                                 {
                                                   this.state.initData.defaultLevel.map((level) => {
                                                     if(question.level == level.value) {
