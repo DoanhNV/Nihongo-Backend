@@ -302,11 +302,12 @@ const initData = {
   defaultTopic : [
     {name : "Hiragana to Kanji", value : 0},
     {name : "Kanji to Hiragana", value : 1},
-    {name : "Vocabulary", value : 2},
+    {name : "Fill into braces 1", value : 2},
     {name : "Synonym", value : 3},
-    {name : "Fill into braces", value : 4},
+    {name : "Fill into braces 2", value : 4},
     {name : "Replace star", value : 5},
-    {name : "Listen and answer", value : 7}
+    {name : "Listen and answer", value : 7},
+    {name : "Fill into braces 3", value : 8}
   ],
   defaultLevel : [
     {name : "Beginer", value : 0},
