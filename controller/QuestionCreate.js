@@ -307,7 +307,8 @@ const initData = {
     {name : "Fill into braces 2", value : 4},
     {name : "Replace star", value : 5},
     {name : "Listen and answer", value : 7},
-    {name : "Fill into braces 3", value : 8}
+    {name : "Fill into braces 3", value : 8},
+    {name : "Wording", value : 9}
   ],
   defaultLevel : [
     {name : "Beginer", value : 0},

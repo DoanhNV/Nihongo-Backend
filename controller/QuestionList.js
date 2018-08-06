@@ -108,7 +108,7 @@ export default class QuestionList extends React.Component {
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://localhost:6868/file/load/base64";
+        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
         var documentFile = { filePath : question.document};
         if(isImage) {
           Axios.post(uploadFileURL, documentFile).then (
@@ -262,7 +262,7 @@ export default class QuestionList extends React.Component {
                                               question.answers.map((answer) => {
                                                 return (
                                                   <div class="col-lg-6">
-                                                      <p class="small-font"><span>{answer.content}</span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
+                                                      <p class="small-font"><span><div dangerouslySetInnerHTML={{__html: answer.content}} /></span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
                                                   </div>
                                                 );
                                               })
@@ -330,7 +330,8 @@ const initData = {
     {name : "Fill into braces 2", value : 4},
     {name : "Replace star", value : 5},
     {name : "Listen and answer", value : 7},
-    {name : "Fill into braces 3", value : 8}
+    {name : "Fill into braces 3", value : 8},
+    {name : "Wording", value : 9}
   ],
   defaultLevel : [
     {name : "Please select", value : -1},
