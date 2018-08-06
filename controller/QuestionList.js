@@ -24,6 +24,7 @@ export default class QuestionList extends React.Component {
     }
 
     handleSearch() {
+      this.state.skip = 0;
       this.search();
     }
 
