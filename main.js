@@ -6,6 +6,7 @@ import Home from './Home.js';
 import Error404 from './Error404';
 import QuestionCreate from './controller/QuestionCreate.js';
 import QuestionList from './controller/QuestionList.js';
+import DocumentCreate from './controller/DocumentCreate.js';
 import { BrowserRouter as Router, Switch, Route, Link, browserHistory } from 'react-router-dom';
 
 class Application extends React.Component {
@@ -15,8 +16,11 @@ class Application extends React.Component {
                 <Router history={browserHistory}>
                     <Switch>
                         <Route exact path="/" component={() => <Layout><Home/></Layout>}/>
+                        {/* Question */}
                         <Route exact path="/question/create" component={() => <Layout><QuestionCreate/></Layout>}/>
                         <Route exact path="/question/list" component={() => <Layout><QuestionList/></Layout>}/>
+                        {/* Document */}
+                        <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
                         <Route component={Error404} />
                     </Switch>
                 </Router>
