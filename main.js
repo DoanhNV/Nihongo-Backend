@@ -7,6 +7,7 @@ import Error404 from './Error404';
 import QuestionCreate from './controller/QuestionCreate.js';
 import QuestionList from './controller/QuestionList.js';
 import DocumentCreate from './controller/DocumentCreate.js';
+import DocumentQuestionCreate from './controller/DocumentQuestionCreate.js';
 import { BrowserRouter as Router, Switch, Route, Link, browserHistory } from 'react-router-dom';
 
 class Application extends React.Component {
@@ -21,6 +22,7 @@ class Application extends React.Component {
                         <Route exact path="/question/list" component={() => <Layout><QuestionList/></Layout>}/>
                         {/* Document */}
                         <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
+                        <Route exact path="/document/insertquestion/:documentId?" component={() => <Layout><DocumentQuestionCreate/></Layout>}/>
                         <Route component={Error404} />
                     </Switch>
                 </Router>

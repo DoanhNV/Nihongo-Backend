@@ -1,6 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
-import { ReactDOM, browserHistory } from 'react-dom';
+import ReactDOM from 'react-dom';
 import { Redirect, withRouter} from 'react-router-dom';
 
 class DocumentCreate extends React.Component {
@@ -29,20 +29,19 @@ class DocumentCreate extends React.Component {
     }
 
     handleSubmit(e) {
+        e.preventDefault();
         this.processContent();
         var requestData = this.prepareRequestData();
         var url = "http://localhost:6868/document/create";
         if(this.isValidParagraph(this.state.content)) {
-            Axios.post(url, requestData).then(response => {
-                var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
-                alert(alertStr);
+          Axios.post(url, requestData).then(response => {
+            var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
+            alert(alertStr);
+            this.redirectTo("/user");
             }).catch (error => {
                 alert("Server Error!: " + error);
             })
         }
-
-        e.preventDefault()
-        window.location.replace("/document/test/test1");
     }
 
     prepareRequestData() {
@@ -83,6 +82,10 @@ class DocumentCreate extends React.Component {
             return false;
         }
         return true;
+    }
+
+    redirectTo(url) {
+      window.location.href = url;
     }
 
     render() {
