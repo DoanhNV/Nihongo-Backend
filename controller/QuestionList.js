@@ -264,7 +264,7 @@ export default class QuestionList extends React.Component {
                                               question.answers.map((answer) => {
                                                 return (
                                                   <div class="col-lg-6">
-                                                      <p class="small-font"><span><div dangerouslySetInnerHTML={{__html: answer.content}} /></span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
+                                                      <p class="small-font"><span dangerouslySetInnerHTML={{__html: answer.content}} ></span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
                                                   </div>
                                                 );
                                               })
