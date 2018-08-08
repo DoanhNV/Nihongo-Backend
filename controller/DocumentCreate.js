@@ -30,6 +30,7 @@ class DocumentCreate extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
+        
         this.processContent();
         var requestData = this.prepareRequestData();
         var url = "http://localhost:6868/document/create";
@@ -37,7 +38,7 @@ class DocumentCreate extends React.Component {
           Axios.post(url, requestData).then(response => {
             var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
             alert(alertStr);
-            this.redirectTo("/user");
+            this.redirectTo("/document/" + response.data.id + "/insertquestion");
             }).catch (error => {
                 alert("Server Error!: " + error);
             })
@@ -60,7 +61,9 @@ class DocumentCreate extends React.Component {
         var domContent = $.parseHTML(htmlContent);
         var innerText = domContent != null ? domContent[0].innerText : "";
         htmlContent = this.isHTML(innerText) ? innerText : htmlContent;
-        htmlContent = this.state.topicMode == 7 ? htmlContent.replace(/<p>/g, "").replace(/<[/]p>/g, "").replace(/"/g, "'") : htmlContent;
+        htmlContent = this.state.topicMode == 7 ? htmlContent.replace(/<p>/g, "").replace(/<[/]p>/g, ""): htmlContent;
+        htmlContent = htmlContent.replace(/"/g, "'");
+        alert(htmlContent);
         this.state.content = htmlContent;
     }
     
