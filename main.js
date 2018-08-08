@@ -4,8 +4,9 @@ import App from './App.jsx';
 import Layout from './Layout';
 import Home from './Home.js';
 import Error404 from './Error404';
-import QuestionCreate from './controller/QuestionCreate.js';
 import QuestionList from './controller/QuestionList.js';
+import DocumentList from './controller/DocumentList.js';
+import QuestionCreate from './controller/QuestionCreate.js';
 import DocumentCreate from './controller/DocumentCreate.js';
 import DocumentQuestionCreate from './controller/DocumentQuestionCreate.js';
 import { BrowserRouter as Router, Switch, Route, Link, browserHistory } from 'react-router-dom';
@@ -23,6 +24,7 @@ class Application extends React.Component {
                         {/* Document */}
                         <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
                         <Route exact path="/document/:documentId?/insertquestion" component={DocumentQuestionCreate}/>
+                        <Route exact path="/document/list" component={() => <Layout><DocumentList/></Layout>}/>
                         <Route component={Error404} />
                     </Switch>
                 </Router>
