@@ -10,6 +10,29 @@
     color: blue;
 }
 
+.color-red {
+    color: red;
+}
+.color-white {
+    color: white;
+}
+
+.width-30percent {
+    width: 30%;
+}
+
+.width-70percent {
+    width: 70%;
+}
+
+.background-color-brown1 {
+    background-color: #484c52;
+}
+
+.color-greeen1 {
+    color: #5dff81;
+}
+
 .group-title {
     font-weight: bold;
     color: black;
@@ -66,4 +89,12 @@
 .info-display {
     width: 125.75px;
     height: 118px;
+}
+
+.floatLeft {
+    float: left !important;
+}
+
+.text-align-right {
+    text-align: right;
 }

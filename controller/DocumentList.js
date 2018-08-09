@@ -12,7 +12,7 @@ export default class DocumentList extends React.Component {
         take : initData.TAKE_NUMBER,
         fieldName : "_id",
         order : -1,
-        questions : [],
+        documents : [],
         total : 0,
         currentPage : 1,
         postPerPage : initData.TAKE_NUMBER
@@ -67,7 +67,7 @@ export default class DocumentList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/mvcquestion/search";
+      var url = "http://localhost:6868/document/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -75,7 +75,7 @@ export default class DocumentList extends React.Component {
     getServerQuestion(url, query) {
       Axios.post(url, query).then (
         res => {
-        this.state.questions = res.data.questions;
+        this.state.documents = res.data.documents;
         this.state.total = res.data.total;
         this.forceUpdate();
       }).catch(error => {
@@ -246,59 +246,40 @@ export default class DocumentList extends React.Component {
                   {/* item */}
                   <div class="panel-body panel-body-nihongo">
                     {
-                      this.state.questions.map((question) => {
+                      this.state.documents.map((document) => {
                         return (
                           <div class="tab-content">
                           <div id="recent-activity">
                             <div id="profile" class="tab-pane">
                                 <section class="panel"> 
-                                    <div class="bio-graph-heading question-title">
-                                    <div dangerouslySetInnerHTML={{__html: question.title}} />
+                                    <div class="bio-graph-heading question-title background-color-brown1">
+                                      <div class="width-30percent floatLeft">
+                                        <span class="color-red">Level: </span> 
+                                        {
+                                          this.state.initData.defaultLevel.map((level) => {
+                                            if(document.level == level.value) {
+                                              return (level.name);
+                                            }
+                                          })
+                                        }
+                                        <span class="color-greeen1"> - Topic: </span>
+                                        {
+                                          this.state.initData.defaultTopic.map((topic) => {
+                                            if(document.topic == topic.value) {
+                                              return (topic.name);
+                                            }
+                                          })
+                                        }      
+                                      </div>
+                                      <div class="width-70percent text-align-right">
+                                        <button class="btn btn-primary" >Add question</button> <span> </span>
+                                        <button class="btn btn-info" >Detail</button> <span> </span>
+                                        <button class="btn btn-success" >Update</button> <span> </span>
+                                        <button class="btn btn-danger" >Delete</button> <span> </span>
+                                      </div>
                                     </div>
                                     <div class="panel-body bio-graph-info">
-                                        <p class="question-sub"><span>Sub </span>: {question.titleSub} </p>
-                                        {/* Answer */}
-                                        <h1 class="group-title">Answers</h1>
-                                        <div class="row">
-                                            { 
-                                              question.answers.map((answer) => {
-                                                return (
-                                                  <div class="col-lg-6">
-                                                      <p class="small-font"><span dangerouslySetInnerHTML={{__html: answer.content}} ></span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
-                                                  </div>
-                                                );
-                                              })
-                                            }
-                                        </div>
-                                        {/* Infomation */}
-                                        <h1 class="group-title">Infomations</h1>
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                              <p>
-                                                <span>Topic: </span> 
-                                                {
-                                                  this.state.initData.defaultTopic.map((topic) => {
-                                                    if(question.topic == topic.value) {
-                                                      return (topic.name);
-                                                    }
-                                                  })
-                                                } 
-                                                <br/>
-                                                <span>Level: </span>
-                                                {
-                                                  this.state.initData.defaultLevel.map((level) => {
-                                                    if(question.level == level.value) {
-                                                      return (level.name);
-                                                    }
-                                                  })
-                                                } 
-                                              </p>
-                                            </div>
-                                            <div class="col-lg-6">
-                                              {this.displayDocument(question)}
-                                              {this.fillImage(question)}
-                                            </div>
-                                        </div>
+                                      <div dangerouslySetInnerHTML={{__html: document.content}} />
                                     </div>
                                   </section>
                               </div>
@@ -325,15 +306,8 @@ const initData = {
   defaultAnswerNumber : 4,
   defaultTopic : [
     {name : "Please select", value : -1},
-    {name : "Hiragana to Kanji", value : 0},
-    {name : "Kanji to Hiragana", value : 1},
-    {name : "Fill into braces 1", value : 2},
-    {name : "Synonym", value : 3},
-    {name : "Fill into braces 2", value : 4},
-    {name : "Replace star", value : 5},
-    {name : "Listen and answer", value : 7},
-    {name : "Fill into braces 3", value : 8},
-    {name : "Wording", value : 9}
+    {name : "Reading - Understanding Paragraph", value : 10},
+    {name : "Fill according to stream Paragraph", value : 11}
   ],
   defaultLevel : [
     {name : "Please select", value : -1},
@@ -350,5 +324,5 @@ const initData = {
     {field : "level", value : "level"},
   ],
   UPLOAD_IMAGE_TYPE : 0,
-  TAKE_NUMBER : 10
+  TAKE_NUMBER : 4
 }

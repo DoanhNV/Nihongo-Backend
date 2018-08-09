@@ -178,7 +178,7 @@ export default class DocumentQuestionCreate extends React.Component {
                 <div class="profile-widget profile-widget-info">
                     <div class="panel-body">
                         <div class="col-lg-8 col-sm-8 follow-info">
-                            <p>{this.state.document.content}</p>
+                            <p ><div class="color-white" dangerouslySetInnerHTML={{__html: this.state.document.content}}></div></p>
                         </div>
                         <div class="col-lg-2 col-sm-6 follow-info weather-category">
                             <ul>
