@@ -9,7 +9,7 @@ class DocumentCreate extends React.Component {
         this.state = {
           initData : initData,
           content : "",
-          topic : 0,
+          topic : 10,
           level : 0,
           documentType: 0,
           questionIds : []
