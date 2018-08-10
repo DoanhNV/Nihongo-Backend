@@ -74,6 +74,8 @@ export default class DocumentDetail extends React.Component {
       Axios.get(url).then( response => {
         console.log(response.data);
         this.state.document = response.data.document;
+        this.state.total = response.data.document.questionIds.length;
+        this.search();
         this.forceUpdate();
       }).catch (error => {
         alert("Server Error :" + error);
@@ -81,7 +83,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/mvcquestion/search";
+      var url = "http://localhost:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -90,7 +92,6 @@ export default class DocumentDetail extends React.Component {
       Axios.post(url, query).then (
         res => {
         this.state.questions = res.data.questions;
-        this.state.total = res.data.total;
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
@@ -98,44 +99,13 @@ export default class DocumentDetail extends React.Component {
     }
 
     prepareQueryData() {
+      var questionIds = this.state.document.questionIds;
+      var skip = this.state.skip;
+      var take = skip + this.state.take;
+      alert(skip + " - " + take);
       return {
-        topic : this.state.topic,
-        level : this.state.level,
-        skip : this.state.skip,
-        take : this.state.take,
-        sort : {
-          fieldName : this.state.fieldName,
-          order : this.state.order
-        }
+        questionIds : questionIds.slice(skip, take)
       }
-    }
-
-    displayDocument(question) {
-      if(question.document !== null) {
-        var isImage = question.document.endsWith(".png");
-        if(isImage) {
-          return (<img id={question.id} class="preview-image" height="70" class="show"/>)
-        } else {
-          return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
-        }
-      }
-    }
-
-    fillImage(question) {
-      if(question.document !== null) {
-        var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
-        var documentFile = { filePath : question.document};
-        if(isImage) {
-          Axios.post(uploadFileURL, documentFile).then (
-            res => {
-            var idDom = "#" + question.id;
-            $(idDom).attr("src",res.data.base64Str);
-          }).catch(error => {
-              alert("Server Error!: " + error);
-          });
-        }
-      } 
     }
     
 
@@ -281,10 +251,6 @@ export default class DocumentDetail extends React.Component {
                                                 } 
                                               </p>
                                             </div>
-                                            <div class="col-lg-6">
-                                              {this.displayDocument(question)}
-                                              {this.fillImage(question)}
-                                            </div>
                                         </div>
                                     </div>
                                   </section>
@@ -331,5 +297,5 @@ const initData = {
     {field : "level", value : "level"},
   ],
   UPLOAD_IMAGE_TYPE : 0,
-  TAKE_NUMBER : 10
+  TAKE_NUMBER : 2
 }
