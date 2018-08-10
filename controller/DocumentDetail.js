@@ -1,7 +1,8 @@
 import React from 'react';
 import Axios from 'axios';
+import Layout from '../Layout';
 
-export default class DocumentList extends React.Component {
+export default class DocumentDetail extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
@@ -12,16 +13,17 @@ export default class DocumentList extends React.Component {
         take : initData.TAKE_NUMBER,
         fieldName : "_id",
         order : -1,
-        documents : [],
+        questions : [],
         total : 0,
         currentPage : 1,
-        postPerPage : initData.TAKE_NUMBER
+        postPerPage : initData.TAKE_NUMBER,
+        documentId : props.match.params.documentId,
+        document : {}
       }
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
-      this.handleAction = this.handleAction.bind(this);
     }
 
     handleSearch() {
@@ -64,11 +66,22 @@ export default class DocumentList extends React.Component {
     }
 
     initPage() {
-      this.search();
+      this.getParagraph();
+    }
+
+    getParagraph() {
+      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      Axios.get(url).then( response => {
+        console.log(response.data);
+        this.state.document = response.data.document;
+        this.forceUpdate();
+      }).catch (error => {
+        alert("Server Error :" + error);
+      });
     }
 
     search() {
-      var url = "http://localhost:6868/document/search";
+      var url = "http://localhost:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -76,7 +89,7 @@ export default class DocumentList extends React.Component {
     getServerQuestion(url, query) {
       Axios.post(url, query).then (
         res => {
-        this.state.documents = res.data.documents;
+        this.state.questions = res.data.questions;
         this.state.total = res.data.total;
         this.forceUpdate();
       }).catch(error => {
@@ -124,33 +137,6 @@ export default class DocumentList extends React.Component {
         }
       } 
     }
-
-    handleAction(e) {
-      var type = Number(e.target.dataset.type);
-      switch(type) {
-        case 0: 
-            this.handleAddQuestion(e);
-            break;
-        case 1: 
-            this.detail(e);
-            break;
-        default:
-      }
-    }
-
-    handleAddQuestion(e) {
-     var documentId = e.target.dataset.id;
-     this.redirectTo("/document/" + documentId + "/insertquestion");
-    }
-
-    detail(e) {
-      var documentId = e.target.dataset.id;
-      this.redirectTo("/document/" + documentId);
-    }
-
-    redirectTo(url) {
-      window.location.href = url;
-    }
     
 
     paging() {
@@ -190,81 +176,54 @@ export default class DocumentList extends React.Component {
     
     render() {
         return (
+          <Layout>
           <div>
             <div class="row">
               <div class="col-lg-12">
-                  <h3> Question list </h3>
+                  <h3> Detail <span class="color-blue"> {this.state.document.id} </span></h3>
               </div>
             </div>
-              <div class="row">
-              {/* Search query */}
+            <div class="row">
               <div class="col-lg-12">
-                <div class="profile-widget profile-widget-info">
-                    <div class="panel-body">
-                    <table class="table-display">
-                      <tr>
-                        <td></td>
-                        <td>
-                          {/* Topic */}
-                          <div class="form-group">
-                              <label class="control-label col-lg-3" for="inputSuccess"><b>Topic</b></label>
-                              <div class="col-lg-5">
-                                <select name="topic" class="form-control m-bot15" onChange={this.handleChange}>
-                                    {this.state.initData.defaultTopic.map((topic) => {
-                                      return <option value={topic.value}>{topic.name}</option>
-                                    })}
-                                    {this.initData}
-                                </select>
-                              </div>
-                            </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td> 
-                           {/* Sort */}
-                           <div class="form-group">
-                              <label class="control-label col-lg-2" for="inputSuccess"><b>Sort by</b></label>
-                              <div class="col-lg-3">
-                                <select name="fieldName" class="form-control m-bot15" onChange={this.handleChange}>
-                                    {this.state.initData.sortObject.map((level) => {
-                                      return <option value={level.value}>{level.field}</option>
-                                    })}
-                                </select>
-                              </div>
-                              <div class="col-lg-3">
-                                <input type="radio" name="order" value="1" onChange={this.handleChange}/> ASC &nbsp; &nbsp;
-                                <input type="radio" name="order" value="-1" onChange={this.handleChange} defaultChecked  /> DESC
-                              </div>
-                            </div>
-                        </td>
-                        <td> 
-                            {/* Level */}
-                            <div class="form-group">
-                              <label class="control-label col-lg-3" for="inputSuccess"><b>Level</b></label>
-                              <div class="col-lg-5">
-                                <select name="level" class="form-control m-bot15" onChange={this.handleChange}>
-                                    {this.state.initData.defaultLevel.map((level) => {
-                                      return <option value={level.value}>{level.name}</option>
-                                    })}
-                                </select>
-                              </div>
-                            </div>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td></td>
-                        <td>
-                          <div class="form-group">
-                            <div class="col-lg-offset-2 col-lg-1">
-                              <button class="btn btn-primary" type="submit" onClick={this.handleSearch}>Search</button>
-                            </div>
+                  <div class="profile-widget profile-widget-info">
+                      <div class="panel-body">
+                          <div class="col-lg-8 col-sm-8 follow-info">
+                              <p ><div class="color-white" dangerouslySetInnerHTML={{__html: this.state.document.content}}></div></p>
                           </div>
-                        </td>
-                      </tr>
-                    </table>
-                    </div>
-                </div>
+                          <div class="col-lg-2 col-sm-6 follow-info weather-category">
+                              <ul>
+                                  <li class="active info-display">
+                                      <i class="fa fa-bell fa-2x"></i> <br/> 
+                                      {
+                                        this.state.initData.defaultLevel.map((level) => {
+                                          if(level.value == this.state.document.level) {
+                                            return (level.name);
+                                          }
+                                        })
+                                      }
+                                  </li>
+                              </ul>
+                          </div>
+                          <div class="col-lg-2 col-sm-6 follow-info weather-category">
+                              <ul>
+                                  <li class="active info-display">
+                                      <i class="fa fa-tachometer fa-2x"></i> <br/>
+                                      {
+                                        this.state.initData.defaultTopic.map((topic) => {
+                                          if(topic.value == this.state.document.topic) {
+                                            return (topic.name);
+                                          }
+                                        })
+                                      }
+                                  </li>
+                              </ul>
+                          </div>
+                      </div>
+                  </div>
               </div>
+            </div>            
+            <div class="row">
+            
               <div class="col-lg-12">
               
                 <section class="panel">
@@ -274,40 +233,59 @@ export default class DocumentList extends React.Component {
                   {/* item */}
                   <div class="panel-body panel-body-nihongo">
                     {
-                      this.state.documents.map((document) => {
+                      this.state.questions.map((question) => {
                         return (
                           <div class="tab-content">
                           <div id="recent-activity">
                             <div id="profile" class="tab-pane">
                                 <section class="panel"> 
-                                    <div class="bio-graph-heading question-title background-color-brown1">
-                                      <div class="width-30percent floatLeft">
-                                        <span class="color-red">Level: </span> 
-                                        {
-                                          this.state.initData.defaultLevel.map((level) => {
-                                            if(document.level == level.value) {
-                                              return (level.name);
-                                            }
-                                          })
-                                        }
-                                        <span class="color-greeen1"> - Topic: </span>
-                                        {
-                                          this.state.initData.defaultTopic.map((topic) => {
-                                            if(document.topic == topic.value) {
-                                              return (topic.name);
-                                            }
-                                          })
-                                        }      
-                                      </div>
-                                      <div class="width-70percent text-align-right">
-                                        <button class="btn btn-primary" data-id={document.id} data-type="0" onClick={this.handleAction}>Add question</button> <span> </span>
-                                        <button class="btn btn-info" data-id={document.id} data-type="1"  onClick={this.handleAction}>Detail</button> <span> </span>
-                                        <button class="btn btn-success" >Update</button> <span> </span>
-                                        <button class="btn btn-danger" >Delete</button> <span> </span>
-                                      </div>
+                                    <div class="bio-graph-heading question-title">
+                                    <div dangerouslySetInnerHTML={{__html: question.title}} />
                                     </div>
                                     <div class="panel-body bio-graph-info">
-                                      <div dangerouslySetInnerHTML={{__html: document.content}} />
+                                        <p class="question-sub"><span>Sub </span>: {question.titleSub} </p>
+                                        {/* Answer */}
+                                        <h1 class="group-title">Answers</h1>
+                                        <div class="row">
+                                            { 
+                                              question.answers.map((answer) => {
+                                                return (
+                                                  <div class="col-lg-6">
+                                                      <p class="small-font"><span dangerouslySetInnerHTML={{__html: answer.content}} ></span>: <span class={answer.isCorrect ? "color-blue" : ""} >{answer.isCorrect ? "Correct" : "Incorrect"} </span></p>
+                                                  </div>
+                                                );
+                                              })
+                                            }
+                                        </div>
+                                        {/* Infomation */}
+                                        <h1 class="group-title">Infomations</h1>
+                                        <div class="row">
+                                            <div class="col-lg-6">
+                                              <p>
+                                                <span>Topic: </span> 
+                                                {
+                                                  this.state.initData.defaultTopic.map((topic) => {
+                                                    if(question.topic == topic.value) {
+                                                      return (topic.name);
+                                                    }
+                                                  })
+                                                } 
+                                                <br/>
+                                                <span>Level: </span>
+                                                {
+                                                  this.state.initData.defaultLevel.map((level) => {
+                                                    if(question.level == level.value) {
+                                                      return (level.name);
+                                                    }
+                                                  })
+                                                } 
+                                              </p>
+                                            </div>
+                                            <div class="col-lg-6">
+                                              {this.displayDocument(question)}
+                                              {this.fillImage(question)}
+                                            </div>
+                                        </div>
                                     </div>
                                   </section>
                               </div>
@@ -326,6 +304,7 @@ export default class DocumentList extends React.Component {
               </div>
             </div>
           </div>
+          </Layout>
         ); 
     }
 }
@@ -352,5 +331,5 @@ const initData = {
     {field : "level", value : "level"},
   ],
   UPLOAD_IMAGE_TYPE : 0,
-  TAKE_NUMBER : 4
+  TAKE_NUMBER : 10
 }
