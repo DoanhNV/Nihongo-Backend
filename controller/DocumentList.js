@@ -68,7 +68,7 @@ export default class DocumentList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/document/search";
+      var url = "http://35.240.130.216:6868/document/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -95,34 +95,6 @@ export default class DocumentList extends React.Component {
           order : this.state.order
         }
       }
-    }
-
-    displayDocument(question) {
-      if(question.document !== null) {
-        var isImage = question.document.endsWith(".png");
-        if(isImage) {
-          return (<img id={question.id} class="preview-image" height="70" class="show"/>)
-        } else {
-          return (<p class="small-font"><span>Text audio question: </span>{question.document}</p>)
-        }
-      }
-    }
-
-    fillImage(question) {
-      if(question.document !== null) {
-        var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
-        var documentFile = { filePath : question.document};
-        if(isImage) {
-          Axios.post(uploadFileURL, documentFile).then (
-            res => {
-            var idDom = "#" + question.id;
-            $(idDom).attr("src",res.data.base64Str);
-          }).catch(error => {
-              alert("Server Error!: " + error);
-          });
-        }
-      } 
     }
 
     handleAction(e) {

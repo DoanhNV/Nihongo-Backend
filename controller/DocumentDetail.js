@@ -70,7 +70,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
       Axios.get(url).then( response => {
         console.log(response.data);
         this.state.document = response.data.document;
@@ -83,7 +83,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/mvcquestion/list";
+      var url = "http://35.240.130.216:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }

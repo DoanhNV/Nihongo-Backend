@@ -33,7 +33,7 @@ class DocumentCreate extends React.Component {
         
         this.processContent();
         var requestData = this.prepareRequestData();
-        var url = "http://localhost:6868/document/create";
+        var url = "http://35.240.130.216:6868/document/create";
         if(this.isValidParagraph(this.state.content)) {
           Axios.post(url, requestData).then(response => {
             var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
