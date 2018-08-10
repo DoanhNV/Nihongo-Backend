@@ -21,6 +21,7 @@ export default class DocumentList extends React.Component {
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
+      this.handleAction = this.handleAction.bind(this);
     }
 
     handleSearch() {
@@ -122,6 +123,25 @@ export default class DocumentList extends React.Component {
           });
         }
       } 
+    }
+
+    handleAction(e) {
+      var type = Number(e.target.dataset.type);
+      switch(type) {
+        case 0: 
+            this.handleAddQuestion(e);
+            break;
+        default:
+      }
+    }
+
+    handleAddQuestion(e) {
+     var documentId = e.target.dataset.id;
+     this.redirectTo("/document/" + documentId + "/insertquestion");
+    }
+
+    redirectTo(url) {
+      window.location.href = url;
     }
     
 
@@ -272,7 +292,7 @@ export default class DocumentList extends React.Component {
                                         }      
                                       </div>
                                       <div class="width-70percent text-align-right">
-                                        <button class="btn btn-primary" >Add question</button> <span> </span>
+                                        <button class="btn btn-primary" data-id={document.id} data-type="0" onClick={this.handleAction}>Add question</button> <span> </span>
                                         <button class="btn btn-info" >Detail</button> <span> </span>
                                         <button class="btn btn-success" >Update</button> <span> </span>
                                         <button class="btn btn-danger" >Delete</button> <span> </span>
