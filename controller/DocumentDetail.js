@@ -297,5 +297,5 @@ const initData = {
     {field : "level", value : "level"},
   ],
   UPLOAD_IMAGE_TYPE : 0,
-  TAKE_NUMBER : 2
+  TAKE_NUMBER : 10
 }
