@@ -9,6 +9,7 @@ import DocumentList from './controller/DocumentList.js';
 import QuestionCreate from './controller/QuestionCreate.js';
 import DocumentCreate from './controller/DocumentCreate.js';
 import DocumentDetail from './controller/DocumentDetail.js';
+import ExamSettingNumber from './controller/ExamSettingNumber.js';
 import DocumentQuestionCreate from './controller/DocumentQuestionCreate.js';
 import { BrowserRouter as Router, Switch, Route, Link, browserHistory } from 'react-router-dom';
 
@@ -20,13 +21,15 @@ class Application extends React.Component {
                     <Switch>
                         <Route exact path="/" component={() => <Layout><Home/></Layout>}/>
                         {/* Question */}
-                        <Route exact path="/question/create" component={() => <Layout><QuestionCreate/></Layout>}/>
                         <Route exact path="/question/list" component={() => <Layout><QuestionList/></Layout>}/>
+                        <Route exact path="/question/create" component={() => <Layout><QuestionCreate/></Layout>}/>
                         {/* Document */}
+                        <Route exact path="/document/:documentId?" component={DocumentDetail}/>
+                        <Route exact path="/document/list" component={() => <Layout><DocumentList/></Layout>}/>
                         <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
                         <Route exact path="/document/:documentId?/insertquestion" component={DocumentQuestionCreate}/>
-                        <Route exact path="/document/list" component={() => <Layout><DocumentList/></Layout>}/>
-                        <Route exact path="/document/:documentId?" component={DocumentDetail}/>
+                        {/* Setting */}
+                        <Route exact path="/setting/exam/number" component={() => <Layout><ExamSettingNumber/></Layout>}/>
                         <Route component={Error404} />
                     </Switch>
                 </Router>
