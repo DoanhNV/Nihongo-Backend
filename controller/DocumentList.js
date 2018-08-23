@@ -306,6 +306,14 @@ const initData = {
   defaultAnswerNumber : 4,
   defaultTopic : [
     {name : "Please select", value : -1},
+    {name : "Kanji to Hiragana", value : 1},
+    {name : "Fill into braces 1", value : 2},
+    {name : "Synonym", value : 3},
+    {name : "Fill into braces 2", value : 4},
+    {name : "Replace star", value : 5},
+    {name : "Listen and answer", value : 7},
+    {name : "Fill into braces 3", value : 8},
+    {name : "Wording", value : 9},
     {name : "Reading - Understanding Paragraph", value : 10},
     {name : "Fill according to stream Paragraph", value : 11}
   ],

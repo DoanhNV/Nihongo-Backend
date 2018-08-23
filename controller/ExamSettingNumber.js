@@ -12,7 +12,7 @@ export default class ExamSettingNumber extends React.Component {
         take : initData.TAKE_NUMBER,
         fieldName : "_id",
         order : -1,
-        documents : [],
+        examSettings : [],
         total : 0,
         currentPage : 1,
         postPerPage : initData.TAKE_NUMBER
@@ -64,27 +64,26 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     initPage() {
-      this.search();
+      this.getData();
     }
 
-    search() {
-      var url = "http://35.240.130.216:6868/document/search";
-      var queryData = this.prepareQueryData();
-      this.getServerQuestion(url, queryData);
+    getData() {
+      var url = "http://localhost:6868/setting/exam/list";
+      this.getServerQuestion(url);
     }
 
-    getServerQuestion(url, query) {
-      Axios.post(url, query).then (
+    getServerQuestion(url) {
+      Axios.get(url).then (
         res => {
-        this.state.documents = res.data.documents;
-        this.state.total = res.data.total;
+        this.state.examSettings = res.data.examSettings;
+        console.log(res);
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
       });
     }
 
-    prepareQueryData() {
+    prepareUpdateData() {
       return {
         topic : this.state.topic,
         level : this.state.level,
@@ -137,50 +136,61 @@ export default class ExamSettingNumber extends React.Component {
               
                 <section class="panel">
                   <div class="row">
-                      <div class="col-lg-10"></div><div class="col-lg-2"><span>Total: {this.state.total}</span></div>
+                      <div class="col-lg-10"></div><div class="col-lg-2"><span><br/></span></div>
                   </div>
                   {/* item */}
                   <div class="panel-body panel-body-nihongo">
                     {
-                      this.state.documents.map((document) => {
+                      this.state.examSettings.map((examSetting) => {
                         return (
                             <div class="col-sm-12">
                             <section class="panel">
                                 <header class="panel-heading no-border">
-                                    Border Table
+                                N {examSetting.level}
                                 </header>
                                 <table class="table table-bordered">
                                     <thead>
                                         <tr>
-                                            <th>#</th>
-                                            <th>First Name</th>
-                                            <th>Last Name</th>
-                                            <th>Username</th>
+                                            <th>Topic</th>
+                                            <th>Number</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                            <td rowspan="2">1</td>
-                                            <td>Mark</td>
-                                            <td>Otto</td>
-                                            <td>@mdo</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Mark</td>
-                                            <td>Otto</td>
-                                            <td>@TwBootstrap</td>
-                                        </tr>
-                                        <tr>
-                                            <td>2</td>
-                                            <td>Jacob</td>
-                                            <td>Thornton</td>
-                                            <td>@fat</td>
-                                        </tr>
-                                        <tr>
-                                            <td>3</td>
-                                            <td colspan="2">Larry the Bird</td>
-                                            <td>@twitter</td>
-                                        </tr>
+                                        {
+                                          examSetting.topicConfigs.map((topicConfig, index) => {
+                                            if(index === 0) {
+                                              return (
+                                                <tr>
+                                                  <td>
+                                                    {
+                                                      this.state.initData.defaultTopic.map((topic) => {
+                                                      if(topicConfig.topic == topic.value) {
+                                                        return topic.name;
+                                                      }})
+                                                    }
+                                                  </td>
+                                                  <td><input type="text" value={topicConfig.number} disabled/></td>
+                                                  <td rowspan={examSetting.topicConfigs.length}>Mark {examSetting.topicConfigs.length}</td>
+                                                </tr>
+                                              );
+                                            } else {
+                                              return (
+                                                <tr>
+                                                 <td>
+                                                    {
+                                                      this.state.initData.defaultTopic.map((topic) => {
+                                                      if(topicConfig.topic == topic.value) {
+                                                        return topic.name;
+                                                      }})
+                                                    }
+                                                  </td>
+                                                  <td><input type="text" value={topicConfig.number} disabled/></td>
+                                                </tr>
+                                              )
+                                            }
+                                          })
+                                        }
                                     </tbody>
                                 </table>
                             </section>
@@ -201,6 +211,15 @@ const initData = {
   defaultAnswerNumber : 4,
   defaultTopic : [
     {name : "Please select", value : -1},
+    {name : "Hiragana to Kanji", value : 0},
+    {name : "Kanji to Hiragana", value : 1},
+    {name : "Fill into braces 1", value : 2},
+    {name : "Synonym", value : 3},
+    {name : "Fill into braces 2", value : 4},
+    {name : "Replace star", value : 5},
+    {name : "Listen and answer", value : 7},
+    {name : "Fill into braces 3", value : 8},
+    {name : "Wording", value : 9},
     {name : "Reading - Understanding Paragraph", value : 10},
     {name : "Fill according to stream Paragraph", value : 11}
   ],
