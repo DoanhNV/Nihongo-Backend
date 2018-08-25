@@ -19,42 +19,28 @@ export default class ExamSettingNumber extends React.Component {
       }
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
-      this.handleSearch = this.handleSearch.bind(this);
-      this.handlePageSearch = this.handlePageSearch.bind(this);
       this.handleAction = this.handleAction.bind(this);
+      this.handleUpdate = this.handleUpdate.bind(this);
+      this.handleCancel = this.handleCancel.bind(this);
     }
 
-    handleSearch() {
-      this.state.skip = 0;
-      this.state.currentPage = 1;
-      this.search();
+    handleUpdate(e) {
+      var inputClass = ".input-" + e.target.dataset.id;
+      $(inputClass).attr("disabled", false);
+      var buttonUpdateId = "btnUpdate" + e.target.dataset.id;
+      $("#" + buttonUpdateId).text("Save");
     }
 
-    handlePageSearch(e, page) {
-      this.changeSkipTake(e);
-      this.search();
-      e.preventDefault();
-    }
-
-    changeSkipTake(e) {
-      var changeNumber = e.currentTarget.dataset.tag;
-      var currentPage = this.state.currentPage;
-      var skip = this.state.skip;
-      var pageNumber = Math.floor(this.state.total /  this.state.postPerPage);
-      pageNumber = this.state.total % this.state.postPerPage == 0 ? pageNumber : pageNumber + 1;
-
-      if(changeNumber === "encrease") {
-        currentPage++;
-      } else if(changeNumber === "decrease") {
-        currentPage--;
-      } else {
-        currentPage = changeNumber;
+    handleCancel(e) {
+      var inputClass = "input-" + e.target.dataset.id;
+      $("." + inputClass).attr("disabled", true);
+      var elements = document.getElementsByClassName(inputClass);
+      var buttonUpdateId = "btnUpdate" + e.target.dataset.id;
+      $("#" + buttonUpdateId).text("Update");
+      for (var i = 0; i < elements.length; i++) {
+        var item = elements[i];
+        item.value = item.dataset.previous;
       }
-      if(0 < currentPage  && currentPage <= pageNumber) {
-        skip = (currentPage - 1) * this.state.take;
-      }
-      this.state.currentPage = currentPage;
-      this.state.skip = skip;
     }
 
     handleChange(e) {
@@ -69,10 +55,6 @@ export default class ExamSettingNumber extends React.Component {
 
     getData() {
       var url = "http://localhost:6868/setting/exam/list";
-      this.getServerQuestion(url);
-    }
-
-    getServerQuestion(url) {
       Axios.get(url).then (
         res => {
         this.state.examSettings = res.data.examSettings;
@@ -80,7 +62,7 @@ export default class ExamSettingNumber extends React.Component {
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
-      });
+      });  
     }
 
     prepareUpdateData() {
@@ -170,8 +152,11 @@ export default class ExamSettingNumber extends React.Component {
                                                       }})
                                                     }
                                                   </td>
-                                                  <td><input type="text" value={topicConfig.number} disabled/></td>
-                                                  <td rowspan={examSetting.topicConfigs.length}>Mark {examSetting.topicConfigs.length}</td>
+                                                  <td><input type="number" class={"input-" + examSetting.id} data-previous={topicConfig.number} defaultValue={topicConfig.number} disabled="true"/></td>
+                                                  <td rowspan={examSetting.topicConfigs.length}>
+                                                    <button class="btn btn-success" id={"btnUpdate" + examSetting.id} data-id={examSetting.id} onClick={this.handleUpdate} >Update</button> <span> </span>
+                                                    <button class="btn btn-danger" data-id={examSetting.id} onClick={this.handleCancel}>Cancel</button> <span> </span>
+                                                  </td>
                                                 </tr>
                                               );
                                             } else {
@@ -185,7 +170,7 @@ export default class ExamSettingNumber extends React.Component {
                                                       }})
                                                     }
                                                   </td>
-                                                  <td><input type="text" value={topicConfig.number} disabled/></td>
+                                                  <td><input type="number" class={"input-" + examSetting.id} defaultValue={topicConfig.number} data-previous={topicConfig.number} disabled="true"/></td>
                                                 </tr>
                                               )
                                             }
