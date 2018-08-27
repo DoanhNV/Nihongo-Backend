@@ -19,16 +19,23 @@ export default class ExamSettingNumber extends React.Component {
       }
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
-      this.handleAction = this.handleAction.bind(this);
       this.handleUpdate = this.handleUpdate.bind(this);
       this.handleCancel = this.handleCancel.bind(this);
     }
 
     handleUpdate(e) {
-      var inputClass = ".input-" + e.target.dataset.id;
+      var examId = e.target.dataset.id;
+      var inputClassDom = "input-" + examId;
+      var inputClass = "." + inputClassDom;
       $(inputClass).attr("disabled", false);
-      var buttonUpdateId = "btnUpdate" + e.target.dataset.id;
-      $("#" + buttonUpdateId).text("Save");
+      var buttonUpdateId = "btnUpdate" + examId;
+      var level = e.target.dataset.level;
+      var previousMode = $("#" + buttonUpdateId).text();
+      if(previousMode === this.state.initData.UPDATE_MODE) {
+        $("#" + buttonUpdateId).text(this.state.initData.SAVE_MODE);
+      } else {
+        this.updateData(examId, level, inputClassDom);
+      }
     }
 
     handleCancel(e) {
@@ -36,7 +43,7 @@ export default class ExamSettingNumber extends React.Component {
       $("." + inputClass).attr("disabled", true);
       var elements = document.getElementsByClassName(inputClass);
       var buttonUpdateId = "btnUpdate" + e.target.dataset.id;
-      $("#" + buttonUpdateId).text("Update");
+      $("#" + buttonUpdateId).text(this.state.initData.UPDATE_MODE);
       for (var i = 0; i < elements.length; i++) {
         var item = elements[i];
         item.value = item.dataset.previous;
@@ -65,40 +72,41 @@ export default class ExamSettingNumber extends React.Component {
       });  
     }
 
-    prepareUpdateData() {
-      return {
-        topic : this.state.topic,
-        level : this.state.level,
-        skip : this.state.skip,
-        take : this.state.take,
-        sort : {
-          fieldName : this.state.fieldName,
-          order : this.state.order
+    updateData(id, level, inputClassDom) {
+      var url = "http://localhost:6868/setting/exam/set/number";
+      var data = this.prepareUpdateData(id, level, inputClassDom);
+      Axios.put(url, data).then (
+        res => {
+        var alertString = res.data.code == 1.1 ? "Save success!" : "Insert Fail!";
+        alert(alertString);
+        var inputClass = "." + inputClassDom;
+        $(inputClass).attr("disabled", true);
+        var topicConfigs = data.topicConfigs;
+        var elements = document.getElementsByClassName(inputClassDom);
+        for(var i = 0; i < topicConfigs.length; i ++) {
+          elements[i].dataset.previous = topicConfigs[i].number;
         }
+      }).catch(error => {
+          alert("Server Error!: " + error);
+      });  
+    }
+
+    prepareUpdateData(id, level, inputClassDom) {
+      var elements = document.getElementsByClassName(inputClassDom);
+      var topicConfigs = [];
+      for( var i = 0; i < elements.length; i++) {
+        var item = elements[i];
+        var topicElement = {
+          topic : item.dataset.topic,
+          number : item.value
+        }
+        topicConfigs.push(topicElement);
       }
-    }
-
-    handleAction(e) {
-      var type = Number(e.target.dataset.type);
-      switch(type) {
-        case 0: 
-            this.handleAddQuestion(e);
-            break;
-        case 1: 
-            this.detail(e);
-            break;
-        default:
+      return {
+        id : id,
+        level : level,
+        topicConfigs : topicConfigs
       }
-    }
-
-    handleAddQuestion(e) {
-     var documentId = e.target.dataset.id;
-     this.redirectTo("/document/" + documentId + "/insertquestion");
-    }
-
-    detail(e) {
-      var documentId = e.target.dataset.id;
-      this.redirectTo("/document/" + documentId);
     }
 
     redirectTo(url) {
@@ -152,9 +160,9 @@ export default class ExamSettingNumber extends React.Component {
                                                       }})
                                                     }
                                                   </td>
-                                                  <td><input type="number" class={"input-" + examSetting.id} data-previous={topicConfig.number} defaultValue={topicConfig.number} disabled="true"/></td>
+                                                  <td><input type="number" min="0" class={"input-" + examSetting.id} data-topic={topicConfig.topic} data-previous={topicConfig.number} defaultValue={topicConfig.number} disabled="true"/></td>
                                                   <td rowspan={examSetting.topicConfigs.length}>
-                                                    <button class="btn btn-success" id={"btnUpdate" + examSetting.id} data-id={examSetting.id} onClick={this.handleUpdate} >Update</button> <span> </span>
+                                                    <button class="btn btn-success" id={"btnUpdate" + examSetting.id} data-level={examSetting.level} data-id={examSetting.id} onClick={this.handleUpdate} >Update</button> <span> </span>
                                                     <button class="btn btn-danger" data-id={examSetting.id} onClick={this.handleCancel}>Cancel</button> <span> </span>
                                                   </td>
                                                 </tr>
@@ -170,7 +178,7 @@ export default class ExamSettingNumber extends React.Component {
                                                       }})
                                                     }
                                                   </td>
-                                                  <td><input type="number" class={"input-" + examSetting.id} defaultValue={topicConfig.number} data-previous={topicConfig.number} disabled="true"/></td>
+                                                  <td><input type="number" min="0" class={"input-" + examSetting.id} data-topic={topicConfig.topic} data-previous={topicConfig.number}  defaultValue={topicConfig.number} disabled="true"/></td>
                                                 </tr>
                                               )
                                             }
@@ -223,5 +231,7 @@ const initData = {
     {field : "level", value : "level"},
   ],
   UPLOAD_IMAGE_TYPE : 0,
-  TAKE_NUMBER : 10
+  TAKE_NUMBER : 10,
+  UPDATE_MODE : "Update",
+  SAVE_MODE : "Save"
 }
