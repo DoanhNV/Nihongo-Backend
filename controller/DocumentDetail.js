@@ -102,7 +102,6 @@ export default class DocumentDetail extends React.Component {
       var questionIds = this.state.document.questionIds;
       var skip = this.state.skip;
       var take = skip + this.state.take;
-      alert(skip + " - " + take);
       return {
         questionIds : questionIds.slice(skip, take)
       }
