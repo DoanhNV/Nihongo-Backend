@@ -61,7 +61,7 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     getData() {
-      var url = "http://localhost:6868/setting/exam/list";
+      var url = "http://35.240.130.216:6868/setting/exam/list";
       Axios.get(url).then (
         res => {
         this.state.examSettings = res.data.examSettings;
@@ -73,7 +73,7 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     updateData(id, level, inputClassDom) {
-      var url = "http://localhost:6868/setting/exam/set/number";
+      var url = "http://35.240.130.216:6868/setting/exam/set/number";
       var data = this.prepareUpdateData(id, level, inputClassDom);
       Axios.put(url, data).then (
         res => {
