@@ -24,10 +24,10 @@ class Application extends React.Component {
                         <Route exact path="/question/list" component={() => <Layout><QuestionList/></Layout>}/>
                         <Route exact path="/question/create" component={() => <Layout><QuestionCreate/></Layout>}/>
                         {/* Document */}
-                        <Route exact path="/document/:documentId?" component={DocumentDetail}/>
-                        <Route exact path="/document/list" component={() => <Layout><DocumentList/></Layout>}/>
                         <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
                         <Route exact path="/document/:documentId?/insertquestion" component={DocumentQuestionCreate}/>
+                        <Route exact path="/document/list" component={() => <Layout><DocumentList/></Layout>}/>
+                        <Route exact path="/document/:documentId?" component={DocumentDetail}/>
                         {/* Setting */}
                         <Route exact path="/setting/exam/number" component={() => <Layout><ExamSettingNumber/></Layout>}/>
                         <Route component={Error404} />
