@@ -51,20 +51,15 @@ export default class Menu extends React.Component {
                                 <li><a class="" href="/setting/exam/number">Exam setting</a></li>
                             </ul>
                         </li>
-                        <li>
-                            <a class="" href="chart-chartjs.html">
-                                <i class="icon_piechart"></i>
-                                <span>Charts</span>
-                            </a>
-                        </li>
                         <li class="sub-menu">
                             <a href="javascript:;" class="">
                                 <i class="icon_table"></i>
-                                <span>Tables</span>
+                                <span>Exam</span>
                                 <span class="menu-arrow arrow_carrot-right"></span>
                             </a>
                             <ul class="sub">
-                                <li><a class="" href="basic_table.html">Basic Table</a></li>
+                                <li><a class="" href="/exam/create">Create Exam</a></li>
+                                <li><a class="" href="/exam/list">All Exam</a></li>
                             </ul>
                         </li>
 

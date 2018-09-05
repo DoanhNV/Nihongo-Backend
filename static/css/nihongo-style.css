@@ -10,11 +10,19 @@
     color: blue;
 }
 
+.color-yellow {
+    color: yellow;
+}
+
 .color-red {
     color: red;
 }
 .color-white {
     color: white;
+}
+
+.color-green {
+    color: green;
 }
 
 .width-30percent {
