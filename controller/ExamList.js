@@ -17,13 +17,15 @@ export default class ExamList extends React.Component {
         currentPage : 1,
         postPerPage : initData.TAKE_NUMBER,
         isTrial : null,
-        isFree : null
+        isFree : null,
+        currentIndex : 0
       }
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
       this.handleAction = this.handleAction.bind(this);
+      this.handleUpdate = this.handleUpdate.bind(this);
     }
 
     handleSearch() {
@@ -89,8 +91,8 @@ export default class ExamList extends React.Component {
     prepareQueryData() {
       return {
         level : this.state.level,
-        isTrial : this.state.isTrial,
-        isFree : this.state.isFree,
+        isTrial : this.state.isTrial !== "null" ? this.state.isTrial : null,
+        isFree : this.state.isFree !== "null" ? this.state.isFree : null,
         skip : this.state.skip,
         take : this.state.take,
         sort : {
@@ -103,19 +105,62 @@ export default class ExamList extends React.Component {
     handleAction(e) {
       var type = Number(e.target.dataset.type);
       switch(type) {
-        case 0: 
-            this.handleAddQuestion(e);
-            break;
-        case 1: 
-            this.detail(e);
-            break;
         default:
+        this.detail(e);
       }
     }
 
-    handleAddQuestion(e) {
-     var documentId = e.target.dataset.id;
-     this.redirectTo("/document/" + documentId + "/insertquestion");
+    handleUpdate(e) {
+        var examId = e.target.dataset.id;
+        var field = e.target.dataset.field;
+        var value = e.target.dataset.value == 'true' ? 'false' : 'true';
+        var css = Number(e.target.dataset.cssdata);
+        var url = "http://localhost:6868/exam/update/" + examId;
+        var updateData = this.prepareUpdateData(field, value);
+        Axios.put(url, updateData).then((response) => {  
+            var code = response.data.code;
+            if(code == 1.1) {
+                var css0 = "color-green background-color-yellow width-80px ";
+                var css1 = "color-yellow background-color-green width-80px ";
+
+                var prefix = "isFree";
+                if(field === "isTrial") {
+                    prefix = "isTrial";
+                } else if (field === "isActive") {
+                    prefix = "isActive";
+                } 
+
+                var style = css1;
+                if(css == 1) {
+                    var style = css0 + prefix + "-" + examId;
+                }
+                var cssId = "#" + prefix + "-" + examId;
+                $(cssId).attr('class',style);
+                css = css == 0 ? 1 : 0;
+                $(cssId).attr('data-cssdata',css);
+                $(cssId).attr('data-value',value);
+            }
+        }).catch(error => {
+            alert("Server error " + error);
+        });
+    }
+
+    prepareUpdateData(field, value) {
+        var updateData = {};
+        switch(field) {
+            case "isFree":
+                updateData = {isFree : value};
+                break;
+            case "isTrial":
+                updateData = {isTrial : value};
+                break;
+            case "isActive":
+                updateData = {isActive : value};
+                break;
+            default:
+                break;
+        }
+        return updateData;
     }
 
     detail(e) {
@@ -161,16 +206,6 @@ export default class ExamList extends React.Component {
       }
       //<div dangerouslySetInnerHTML={{__html: pageTags}} />
       return  <div>{tagElements}</div>
-    }
-
-    displayFree(exam) {
-        var htmlFree = "";
-        if(exam.isFree) {
-            htmlFree = "<p class='color-green'><span> FREE </span></p>";
-        } else {
-            htmlFree = "<p class='color-red'><span> MONEY </span></p>";
-        }
-        return <div dangerouslySetInnerHTML={{__html: htmlFree}}/>
     }
     
     render() {
@@ -239,7 +274,7 @@ export default class ExamList extends React.Component {
                             <div class="form-group">
                               <label class="control-label col-lg-3" for="inputSuccess"><b>Free</b></label>
                               <div class="col-lg-5">
-                                <select name="isTrial" class="form-control m-bot15" onChange={this.handleChange}>
+                                <select name="isFree" class="form-control m-bot15" onChange={this.handleChange}>
                                     {this.state.initData.defaultFree.map((free) => {
                                       return <option value={free.value}>{free.name}</option>
                                     })}
@@ -281,7 +316,7 @@ export default class ExamList extends React.Component {
                                             <section class="panel">
                                                 <div class="bio-graph-heading question-title">
                                                     <div>
-                                                       {index + 1} <span> -  </span> {exam.id} 
+                                                       {this.state.skip + index + 1} <span> -  </span> {exam.id} 
                                                         <span class="color-red"> - Level: </span> 
                                                         {
                                                             this.state.initData.defaultLevel.map((level) => {
@@ -290,33 +325,59 @@ export default class ExamList extends React.Component {
                                                                 }
                                                             })
                                                         }
+                                                        <span class="color-red"> - </span> 
+                                                        <button id={"isFree-" + exam.id} class={exam.isFree == true ? 
+                                                                        "color-green background-color-yellow width-80px " 
+                                                                            : "color-yellow background-color-green width-80px isFree-"}
+                                                                data-id={exam.id} data-value={exam.isFree} data-field="isFree" data-cssdata={exam.isFree == true ? 0 : 1}
+                                                                onClick={this.handleUpdate}
+                                                        >
+                                                            {exam.isFree == true ? "Free" : "Money"}
+                                                        </button>
+                                                        <button id={"isTrial-" + exam.id} class={exam.isTrial == true ? 
+                                                                        "color-green background-color-yellow width-80px isTrial-" + exam.id
+                                                                            : "color-yellow background-color-green width-80px isTrial-" + exam.id}
+                                                                data-id={exam.id} data-value={exam.isTrial} data-field="isTrial" data-cssdata={exam.isTrial == true ? 0 : 1}
+                                                                onClick={this.handleUpdate}
+                                                        >
+                                                            {exam.isTrial == true ? "Trial" : "Not trial"}
+                                                        </button>
+
+                                                        <button id={"isActive-" + exam.id} class={exam.isActive == true ? 
+                                                                    "color-yellow background-color-green width-80px isActive-" + exam.id:
+                                                                         "color-green background-color-yellow width-80px isActive-" + exam.id}
+                                                                data-id={exam.id} data-value={exam.isActive} data-field="isActive" data-cssdata={exam.isActive == true ? 1 : 0}
+                                                                onClick={this.handleUpdate}
+                                                        >
+                                                            {exam.isActive == true ? "Active" : "Disable"}
+                                                        </button>
+                                                        <span>                                      </span>
+                                                         <button class="btn-primary">
+                                                            Detail
+                                                        </button>
                                                     </div>
                                                 </div>
                                                 <div class="panel-body bio-graph-info">
-                                                    {this.displayFree(exam)}
-                                                    <h1 class="group-title">Answers</h1>
                                                     <div class="row">
                                                         <div class="col-lg-6">
-                                                            <p class="small-font"><span>大きな声で話さなければならないこと</span>: <span class="">Incorrect </span></p>
+                                                            <p class="small-font"><span>Point</span>: <span class="color-blue">{exam.point}</span></p>
                                                         </div>
                                                         <div class="col-lg-6">
-                                                            <p class="small-font"><span>挨拶をしてから、店に入らなければならないこと</span>: <span class="">Incorrect </span></p>
+                                                            <p class="small-font"><span>like</span>: <span class="color-blue">{exam.likeNumber}</span></p>
                                                         </div>
                                                         <div class="col-lg-6">
-                                                            <p class="small-font"><span>ニコニコして話をしなければならないこと</span>: <span class="">Incorrect </span></p>
+                                                            <p class="small-font"><span>Time (minutes)</span>: <span class="color-blue">{exam.completedMinutes}</span></p>
                                                         </div>
                                                         <div class="col-lg-6">
-                                                            <p class="small-font"><span>店の人に商品をとってもらわなければならないこと</span>: <span class="color-blue">Correct </span></p>
+                                                            <p class="small-font"><span>Taked number</span>: <span class="color-blue">{exam.takedNumber}</span></p>
                                                         </div>
                                                     </div>
-                                                    <h1 class="group-title">Infomations</h1>
                                                     <div class="row">
                                                         <div class="col-lg-6">
-                                                            <p><span>Topic: </span>
-                                                                <br/><span>Level: </span>N3</p>
+                                                            <p><span>Create Time: { new Date(exam.createTime).toLocaleString()}</span></p>
                                                         </div>
                                                         <div class="col-lg-6">
-                                                            <p class="small-font"><span>Text audio question: </span></p>
+                                                            <p><span>Update Time: { new Date(exam.updateTime).toLocaleString()}</span></p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -367,12 +428,12 @@ const initData = {
     {name : "N5", value : 5}
   ],
   defaultTrial : [
-    {name : "All", value : null},
+    {name : "All", value : "null"},
     {name : "is Trial", value : true},
     {name : "not Trial", value : false}
   ],
   defaultFree : [
-    {name : "All", value : null},
+    {name : "All", value : "null"},
     {name : "is Free", value : true},
     {name : "not Free", value : false}
   ],

@@ -25,6 +25,14 @@
     color: green;
 }
 
+.background-color-green {
+    background-color: green;
+}
+
+.background-color-yellow {
+    background-color: yellow;
+}
+
 .width-30percent {
     width: 30%;
 }
@@ -48,6 +56,10 @@
 
 .query-area {
     background-color: #ffffff;
+}
+
+.width-80px {
+    width: 80px;
 }
 
 .question-list-query {
