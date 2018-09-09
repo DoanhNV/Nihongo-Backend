@@ -37,6 +37,10 @@
     width: 30%;
 }
 
+.width-50percent {
+    width: 50%;
+}
+
 .width-70percent {
     width: 70%;
 }
@@ -117,4 +121,8 @@
 
 .text-align-right {
     text-align: right;
+}
+
+.text-align-center {
+    text-align: center !important;
 }

@@ -26,6 +26,7 @@ export default class ExamList extends React.Component {
       this.handlePageSearch = this.handlePageSearch.bind(this);
       this.handleAction = this.handleAction.bind(this);
       this.handleUpdate = this.handleUpdate.bind(this);
+      this.handleDetail = this.handleDetail.bind(this);
     }
 
     handleSearch() {
@@ -139,6 +140,11 @@ export default class ExamList extends React.Component {
                 css = css == 0 ? 1 : 0;
                 $(cssId).attr('data-cssdata',css);
                 $(cssId).attr('data-value',value);
+                var buttonText = $(cssId).text();
+                buttonText = this.getChangeButtonText(field,buttonText);
+                $(cssId).text(buttonText);
+            } else {
+              alert("Update fail!");
             }
         }).catch(error => {
             alert("Server error " + error);
@@ -157,10 +163,28 @@ export default class ExamList extends React.Component {
             case "isActive":
                 updateData = {isActive : value};
                 break;
-            default:
-                break;
         }
         return updateData;
+    }
+
+    getChangeButtonText(field, buttonText) {
+      switch(field) {
+          case "isFree":
+              buttonText = buttonText === "Free" ? "Money" : "Free";
+              break;
+          case "isTrial":
+              buttonText = buttonText === "Trial" ? "Not trial" : "Trial";
+              break;
+          case "isActive":
+              buttonText = buttonText === "Active" ? "Disable" : "Active";
+              break;
+      }
+      return buttonText;
+    }
+
+    handleDetail(e) {
+      var examId = e.target.dataset.id;
+      this.redirectTo("/exam/" + examId);
     }
 
     detail(e) {
@@ -169,7 +193,7 @@ export default class ExamList extends React.Component {
     }
 
     redirectTo(url) {
-      window.location.href = url;
+      window.open(url,"_blank") ;
     }
     
 
@@ -213,7 +237,6 @@ export default class ExamList extends React.Component {
           <div>
             <div class="row">
               <div class="col-lg-12">
-                  <h3> Exam list </h3>
               </div>
             </div>
               <div class="row">
@@ -352,7 +375,7 @@ export default class ExamList extends React.Component {
                                                             {exam.isActive == true ? "Active" : "Disable"}
                                                         </button>
                                                         <span>                                      </span>
-                                                         <button class="btn-primary">
+                                                         <button class="btn-primary" onClick={this.handleDetail} data-id={exam.id}>
                                                             Detail
                                                         </button>
                                                     </div>

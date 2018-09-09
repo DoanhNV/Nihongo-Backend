@@ -5,6 +5,7 @@ import Layout from './Layout';
 import Home from './Home.js';
 import Error404 from './Error404';
 import ExamList from './controller/ExamList.js';
+import ExamDetail from './controller/ExamDetail.js';
 import ExamCreate from './controller/ExamCreate.js';
 import QuestionList from './controller/QuestionList.js';
 import DocumentList from './controller/DocumentList.js';
@@ -35,6 +36,7 @@ class Application extends React.Component {
                         {/* Exam */}
                         <Route exact path="/exam/create" component={() => <Layout><ExamCreate/></Layout>}/>
                         <Route exact path="/exam/list" component={() => <Layout><ExamList/></Layout>}/>
+                        <Route exact path="/exam/:examId?" component={ExamDetail}/>
                         <Route component={Error404} />
                     </Switch>
                 </Router>
