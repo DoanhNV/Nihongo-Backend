@@ -295,37 +295,60 @@ export default class ExamDetail extends React.Component {
                                 <div class="panel-body bio-graph-info">
                                     <div class="row">
                                         {
-                                            examTopic.questions.map((question, questionIndex) => {
-                                                var isParagraph = examTopic.topic == 10 || examTopic.topic == 11;
-                                                if(isParagraph) {
-                                                    return (
-                                                        <div class="bio-graph-heading question-title"> <div dangerouslySetInnerHTML={{__html:question.content}} /></div>
-                                                    )
-                                                } else {
-                                                   
-                                                    var title = question.title.replace(/<p>/g, "")
-                                                                                        .replace(/<[/]p>/g, "").replace(/div/g, "span");
-                                                    var standardTitle = (questionIndex + 1) + "." +  title;
-                                                    if(examTopic.topic == 2) {
-                                                        console.log(question.title);
-                                                    }                                 
-                                                    return (
-                                                        <div class="col-lg-6">
-                                                            <div dangerouslySetInnerHTML={{__html: standardTitle}} />
-                                                            {
-                                                                
-                                                                question.answers.map((answer) => {
-                                                                return (
-                                                                    <p class="small-font">
-                                                                        <input type="radio" checked={answer.isCorrect}/> 
-                                                                        <span> {answer.content}</span> 
-                                                                    </p>
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    );
-                                                }
-                                            })
+                                                examTopic.questions.map((question, questionIndex) => {
+
+                                                    var isParagraph = examTopic.topic == 10 || examTopic.topic == 11;
+                                                    if(isParagraph) {
+                                                        return (
+                                                            <div>
+                                                                <div class="bio-graph-heading question-title margin-bottom-10px"> <div dangerouslySetInnerHTML={{__html:question.content}} /></div>
+                                                                {
+                                                                    question.questions.map((subQuestion, questionIndex) => {
+                                                                        var title = subQuestion.title.replace(/<p>/g, "")
+                                                                                             .replace(/<[/]p>/g, "").replace(/div/g, "span");
+                                                                        var standardTitle = (questionIndex + 1) + "." +  title;
+                                                                                                      
+                                                                        return (
+                                                                            <div class="col-lg-6 height-160px">
+                                                                                <div dangerouslySetInnerHTML={{__html: standardTitle}} />
+                                                                                {
+                                                                                    
+                                                                                    subQuestion.answers.map((answer) => {
+                                                                                    return (
+                                                                                        <p class="small-font">
+                                                                                            <input type="radio" checked={answer.isCorrect}/> 
+                                                                                            <span> {answer.content}</span> 
+                                                                                        </p>
+                                                                                    );
+                                                                                })}
+                                                                            </div>
+                                                                        );
+                                                                    })
+                                                                }
+                                                            </div>
+                                                        )
+                                                    } else {
+                                                         var title = question.title.replace(/<p>/g, "")
+                                                                                             .replace(/<[/]p>/g, "").replace(/div/g, "span");
+                                                         var standardTitle = (questionIndex + 1) + "." +  title;
+                                                                                         
+                                                         return (
+                                                             <div class="col-lg-6 height-160px">
+                                                                 <div dangerouslySetInnerHTML={{__html: standardTitle}} />
+                                                                 {
+                                                                    
+                                                                     question.answers.map((answer) => {
+                                                                     return (
+                                                                        <p class="small-font">
+                                                                             <input type="radio" checked={answer.isCorrect}/> 
+                                                                             <span> {answer.content}</span> 
+                                                                         </p>
+                                                                     );
+                                                                })}
+                                                             </div>
+                                                        );
+                                                    }
+                                                })
                                         } 
                                     </div>
                                 </div>

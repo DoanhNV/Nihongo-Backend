@@ -26,7 +26,17 @@ class ExamCreate extends React.Component {
         var createData = this.prepareRequestData();
         var url = "http://localhost:6868/exam/create/random";
         Axios.post(url, createData).then(response => {
-            var alertStr = response.data.code == 1.1 ? "Create success!" : "Insert fail!";
+            var alertStr = "";
+            var responceCode = response.data.code; 
+            if(responceCode == 1.1) {
+              alertStr = "Create success!" ;
+            } else if (responceCode == 4.1)  {
+              alertStr = "Level is not been update a setting" ;
+            }  else if (responceCode == 4.2)  {
+              alertStr = "Not enough question for this Level per Topic!" ;
+            } else {
+              alertStr = "System error!" ;
+            }
             alert(alertStr);
         }).catch (error => {
                 alert("Server Error!: " + error);
