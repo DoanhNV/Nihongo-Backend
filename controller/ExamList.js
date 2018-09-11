@@ -73,7 +73,7 @@ export default class ExamList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/exam/search";
+      var url = "http://35.240.130.216:6868/exam/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -116,7 +116,7 @@ export default class ExamList extends React.Component {
         var field = e.target.dataset.field;
         var value = e.target.dataset.value == 'true' ? 'false' : 'true';
         var css = Number(e.target.dataset.cssdata);
-        var url = "http://localhost:6868/exam/update/" + examId;
+        var url = "http://35.240.130.216:6868/exam/update/" + examId;
         var updateData = this.prepareUpdateData(field, value);
         Axios.put(url, updateData).then((response) => {  
             var code = response.data.code;

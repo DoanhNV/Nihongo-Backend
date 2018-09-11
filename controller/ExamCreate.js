@@ -24,7 +24,7 @@ class ExamCreate extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
         var createData = this.prepareRequestData();
-        var url = "http://localhost:6868/exam/create/random";
+        var url = "http://35.240.130.216:6868/exam/create/random";
         Axios.post(url, createData).then(response => {
             var alertStr = "";
             var responceCode = response.data.code; 
