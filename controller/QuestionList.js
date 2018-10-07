@@ -67,13 +67,18 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/mvcquestion/search";
+      var url = "http://localhost:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
-      this.getServerQuestion(url, queryData);
+      var headerObject = {
+        headers: {
+          "access_token": "1231232"
+        }
+      }
+      this.getServerQuestion(url, queryData, headerObject);
     }
 
-    getServerQuestion(url, query) {
-      Axios.post(url, query).then (
+    getServerQuestion(url, query, headerObject) {
+      Axios.post(url, query, headerObject).then (
         res => {
         this.state.questions = res.data.questions;
         this.state.total = res.data.total;
@@ -110,7 +115,7 @@ export default class QuestionList extends React.Component {
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
+        var uploadFileURL = "http://localhost:6868/file/load/base64";
         var documentFile = { filePath : question.document};
         if(isImage) {
           Axios.post(uploadFileURL, documentFile).then (

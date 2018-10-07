@@ -4,6 +4,7 @@ import App from './App.jsx';
 import Layout from './Layout';
 import Home from './Home.js';
 import Error404 from './Error404';
+import Login from './controller/Login.js';
 import ExamList from './controller/ExamList.js';
 import ExamDetail from './controller/ExamDetail.js';
 import ExamCreate from './controller/ExamCreate.js';
@@ -37,6 +38,7 @@ class Application extends React.Component {
                         <Route exact path="/exam/create" component={() => <Layout><ExamCreate/></Layout>}/>
                         <Route exact path="/exam/list" component={() => <Layout><ExamList/></Layout>}/>
                         <Route exact path="/exam/:examId?" component={ExamDetail}/>
+                        <Route exact path="/login" component={Login}/>
                         <Route component={Error404} />
                     </Switch>
                 </Router>
