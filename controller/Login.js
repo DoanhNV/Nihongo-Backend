@@ -20,6 +20,25 @@ class Login extends React.Component {
         this.setState({ [name] : value});
     }
 
+    resetCookie(token) {
+        this.deleteCookie();
+        var date = new Date();
+        const TOKEN_SERVICE_TIME = 30;
+        var currentTime = new Date();
+        currentTime.setMinutes(date.getMinutes() + TOKEN_SERVICE_TIME);
+        alert(currentTime.toLocaleDateString());
+        this.saveCookie(token, currentTime);
+    }
+    
+    deleteCookie() {
+        $.removeCookie('token', { path: '/' });
+    }
+
+    saveCookie(token, expiresTime) {
+        $.cookie("token", token, { expires: expiresTime});
+        alert($.cookie("token"));
+    }
+
     handleSubmit(e) {
         e.preventDefault();
         this.login();
@@ -39,9 +58,13 @@ class Login extends React.Component {
             var SUCCESS_CODE = 1.1;
             var NOT_EXIST_USER_CODE = 2.5;
             var code = response.data.code;
-            var isAdminUser = response.data.user.userType == 0;
-            if (code == SUCCESS_CODE && isAdminUser) {
-                this.redirectTo("/");
+            if (code == SUCCESS_CODE) {
+                var isAdminUser = response.data.user.userType == 0;
+                if (isAdminUser) {
+                    var token = response.data.user.accessToken;
+                    this.resetCookie(token);
+                    this.redirectTo("/");
+                }
             } else if(code ==  NOT_EXIST_USER_CODE) {
                 alert("Incorrect username or password!");
             }
@@ -62,10 +85,8 @@ class Login extends React.Component {
     isValidLoginData() {
         if(this.state.userName == null || this.state.userName === ""
                 || this.state.password == null || this.state.password === "") {
-            alert("invalid");
             return false;
         }
-        alert("valid");
         return true;
     }
 

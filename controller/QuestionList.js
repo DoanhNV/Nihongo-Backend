@@ -63,6 +63,7 @@ export default class QuestionList extends React.Component {
     }
 
     initPage() {
+      alert($.cookie("token"));
       this.search();
     }
 
@@ -71,7 +72,7 @@ export default class QuestionList extends React.Component {
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
-          "access_token": "1231232"
+          "access_token": this.getToken()
         }
       }
       this.getServerQuestion(url, queryData, headerObject);
@@ -80,11 +81,19 @@ export default class QuestionList extends React.Component {
     getServerQuestion(url, query, headerObject) {
       Axios.post(url, query, headerObject).then (
         res => {
-        this.state.questions = res.data.questions;
-        this.state.total = res.data.total;
-        this.forceUpdate();
+        var SUCCESS_CODE = 1.1;
+        if (res.data.code == SUCCESS_CODE) {
+          this.resetCookie(this.getToken());
+          this.state.questions = res.data.questions;
+          this.state.total = res.data.total;
+          this.forceUpdate();
+        } else {
+          this.redirectTo("/login");
+        }
       }).catch(error => {
           alert("Server Error!: " + error);
+          this.deleteCookie();
+          this.redirectTo("/login");
       });
     }
 
@@ -127,6 +136,31 @@ export default class QuestionList extends React.Component {
           });
         }
       } 
+    }
+
+    resetCookie(token) {
+      this.deleteCookie();
+      var date = new Date();
+      const TOKEN_SERVICE_TIME = 30;
+      var currentTime = new Date();
+      currentTime.setMinutes(date.getMinutes() + TOKEN_SERVICE_TIME);
+      this.saveCookie(token, currentTime);
+    }
+  
+    deleteCookie() {
+        $.removeCookie('token', { path: '/' });
+    }
+
+    saveCookie(token, expiresTime) {
+        $.cookie("token", token, { expires: expiresTime});
+    }
+
+    getToken() {
+      return $.cookie("token");
+    }
+
+    redirectTo(url) {
+      window.location.href = url;
     }
     
 
