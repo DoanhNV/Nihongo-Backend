@@ -2,6 +2,7 @@ import React from 'react';
 import Axios from 'axios';
 import ReactDOM from 'react-dom';
 import { Redirect, withRouter} from 'react-router-dom';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 class ExamCreate extends React.Component {
     constructor(props) {
@@ -11,6 +12,7 @@ class ExamCreate extends React.Component {
           level : 0,
         }
 
+        TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
@@ -25,7 +27,13 @@ class ExamCreate extends React.Component {
         e.preventDefault();
         var createData = this.prepareRequestData();
         var url = "http://35.240.130.216:6868/exam/create/random";
-        Axios.post(url, createData).then(response => {
+        var headerObject = {
+          headers: {
+            "Content-Type": "application/json",
+            "access_token": TokenUtil.getToken()
+          }
+        }
+        Axios.post(url, createData, headerObject).then(response => {
             var alertStr = "";
             var responceCode = response.data.code; 
             if(responceCode == 1.1) {
@@ -37,9 +45,15 @@ class ExamCreate extends React.Component {
             } else {
               alertStr = "System error!" ;
             }
+            var SUCCESS_CODE = 1.1;
+            if (response.data.code == SUCCESS_CODE) {
+              TokenUtil.resetCookie(TokenUtil.getToken());
+            }
             alert(alertStr);
         }).catch (error => {
-                alert("Server Error!: " + error);
+            alert("Server Error!: " + error);
+            TokenUtil.deleteCookie();
+            TokenUtil.redirectTo("/login");
         })
     }
 

@@ -70,10 +70,11 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/mvcquestion/search";
+      var url = "http://35.240.130.216:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
+          "Content-Type": "application/json",
           "access_token": TokenUtil.getToken()
         }
       }
@@ -95,7 +96,7 @@ export default class QuestionList extends React.Component {
       }).catch(error => {
           alert("Server Error!: " + error);
           TokenUtil.deleteCookie();
-          //TokenUtil.redirectTo("/login");
+          TokenUtil.redirectTo("/login");
       });
     }
 
@@ -126,15 +127,26 @@ export default class QuestionList extends React.Component {
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://localhost:6868/file/load/base64";
+        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
         var documentFile = { filePath : question.document};
+        var headerObject = {
+          headers: {
+            "Content-Type": "application/json",
+            "access_token": TokenUtil.getToken()
+          }
+        }
         if(isImage) {
-          Axios.post(uploadFileURL, documentFile).then (
-            res => {
+          Axios.post(uploadFileURL, documentFile, headerObject).then ( res => {
+            var SUCCESS_CODE = 1.1;
+            if (res.data.code == SUCCESS_CODE) {
+              TokenUtil.resetCookie(TokenUtil.getToken());
+            }
             var idDom = "#" + question.id;
             $(idDom).attr("src",res.data.base64Str);
           }).catch(error => {
               alert("Server Error!: " + error);
+              TokenUtil.deleteCookie();
+              TokenUtil.redirectTo("/login");
           });
         }
       } 

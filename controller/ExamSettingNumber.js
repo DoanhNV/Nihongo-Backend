@@ -1,5 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class ExamSettingNumber extends React.Component {
     constructor(props) {
@@ -17,6 +18,8 @@ export default class ExamSettingNumber extends React.Component {
         currentPage : 1,
         postPerPage : initData.TAKE_NUMBER
       }
+
+      TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleUpdate = this.handleUpdate.bind(this);
@@ -62,21 +65,43 @@ export default class ExamSettingNumber extends React.Component {
 
     getData() {
       var url = "http://35.240.130.216:6868/setting/exam/list";
-      Axios.get(url).then (
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.get(url, headerObject).then (
         res => {
         this.state.examSettings = res.data.examSettings;
         console.log(res);
+        var SUCCESS_CODE = 1.1;
+        if (res.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
       });  
     }
 
     updateData(id, level, inputClassDom) {
       var url = "http://35.240.130.216:6868/setting/exam/set/number";
       var data = this.prepareUpdateData(id, level, inputClassDom);
-      Axios.put(url, data).then (
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.put(url, data, headerObject).then (
         res => {
+        var SUCCESS_CODE = 1.1;
+        if (res.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
         var alertString = res.data.code == 1.1 ? "Save success!" : "Insert Fail!";
         alert(alertString);
         var inputClass = "." + inputClassDom;
@@ -88,6 +113,8 @@ export default class ExamSettingNumber extends React.Component {
         }
       }).catch(error => {
           alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
       });  
     }
 

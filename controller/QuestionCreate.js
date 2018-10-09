@@ -1,6 +1,8 @@
 import React from 'react';
 import Axios from 'axios';
 import ReactDOM from 'react-dom';
+import * as TokenUtil from '../util/TokenUtil.js';
+
 
 export default class QuestionCreate extends React.Component {
     constructor(props) {
@@ -17,6 +19,7 @@ export default class QuestionCreate extends React.Component {
           textAudioQuestion : ""
         }
 
+        TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
         this.initPage();
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -51,6 +54,7 @@ export default class QuestionCreate extends React.Component {
 
     async handleSubmit(e) {
       var formData = this.getFormData();
+      
       var uploadFileURL = "http://35.240.130.216:6868/file/upload/base64";
       var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
       var base64Data =  $("#base64").val();
@@ -65,6 +69,8 @@ export default class QuestionCreate extends React.Component {
             this.postToServer(createQuestionURL, data);
           }).catch(error => {
             alert("Server Error!");
+            TokenUtil.deleteCookie();
+            TokenUtil.redirectTo("/login");
           });
         } else {
           var data  = this.preparePostData(formData, this.state.textAudioQuestion);
@@ -95,18 +101,36 @@ export default class QuestionCreate extends React.Component {
     }
 
     postToServer(url, data) {
-      Axios.post(url, data).then (
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.post(url, data, headerObject).then (
           res => {
           var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
           alert(alertStr);
+          var SUCCESS_CODE = 1.1;
+          if (res.data.code == SUCCESS_CODE) {
+            TokenUtil.resetCookie(TokenUtil.getToken());
+          }
           this.clearData();
       }).catch(error => {
           alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
       });
     }
 
     async uploadFileToServer(url, data) {
-      return await Axios.post(url, data);
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      return await Axios.post(url, data, headerObject);
     }
 
     clearData() {

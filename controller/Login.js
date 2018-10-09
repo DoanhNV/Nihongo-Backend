@@ -28,7 +28,7 @@ class Login extends React.Component {
 
     login() {
         if (this.isValidLoginData()) {
-            var url = "http://localhost:6868/user/login";
+            var url = "http://35.240.130.216:6868/user/login";
             var query = this.prepareQueryData();
             this.postToServer(url, query);
         }

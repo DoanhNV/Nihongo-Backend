@@ -1,6 +1,7 @@
 import React from 'react';
 import Axios from 'axios';
 import Layout from '../Layout';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class ExamDetail extends React.Component {
     constructor(props) {
@@ -23,6 +24,8 @@ export default class ExamDetail extends React.Component {
         isFree : null,
         currentIndex : 0
       }
+
+      TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleAction = this.handleAction.bind(this);
@@ -47,17 +50,27 @@ export default class ExamDetail extends React.Component {
     }
 
     getServerQuestion(url) {
-      Axios.get(url).then (
-        response => {
-        if(response.data.code == 1.1) {
-            this.state.exam = response.data.exam;
-            this.state.total = response.data.total;
-            this.state.contents = response.data.exam.contents;
-            this.forceUpdate();
+        var headerObject = {
+            headers: {
+              "Content-Type": "application/json",
+              "access_token": TokenUtil.getToken()
+            }
         }
-      }).catch(error => {
+        Axios.get(url, headerObject).then (
+            response => {
+            var SUCCESS_CODE = 1.1;
+            if(response.data.code == SUCCESS_CODE) {
+                this.state.exam = response.data.exam;
+                this.state.total = response.data.total;
+                this.state.contents = response.data.exam.contents;
+                this.forceUpdate();
+                TokenUtil.resetCookie(TokenUtil.getToken());
+            }
+        }).catch(error => {
           alert("Server Error!: " + error);
-      });
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
+        });
     }
 
     handleAction(e) {
@@ -76,6 +89,12 @@ export default class ExamDetail extends React.Component {
                             : e.target.dataset.value == 'true' ? 'false' : 'true';
         var css = Number(e.target.dataset.cssdata);
         var url = "http://35.240.130.216:6868/exam/update/" + examId;
+        var headerObject = {
+            headers: {
+              "Content-Type": "application/json",
+              "access_token": TokenUtil.getToken()
+            }
+        }
         var updateData = this.prepareUpdateData(field, value);
         var isInputField = field === "point" || field === "completedMinutes";
         if(isInputField) {
@@ -84,10 +103,12 @@ export default class ExamDetail extends React.Component {
                 return;
             }
         }
-        Axios.put(url, updateData).then((response) => {  
+        Axios.put(url, updateData, headerObject).then((response) => {  
             console.log(response.data);
             var code = response.data.code;
-            if(code == 1.1) {
+            var SUCCESS_CODE = 1.1;
+            if (code == SUCCESS_CODE) {
+                TokenUtil.resetCookie(TokenUtil.getToken());
                 if(field === "point" ) {
                     $("#txtPoint").val(value);
                     $("#txtPoint").attr("data-previous", value);
@@ -126,6 +147,8 @@ export default class ExamDetail extends React.Component {
             }
         }).catch(error => {
             alert("Server error " + error);
+            TokenUtil.deleteCookie();
+            TokenUtil.redirectTo("/login");
         });
     }
 

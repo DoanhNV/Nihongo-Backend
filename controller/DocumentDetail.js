@@ -1,6 +1,7 @@
 import React from 'react';
 import Axios from 'axios';
 import Layout from '../Layout';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class DocumentDetail extends React.Component {
     constructor(props) {
@@ -20,6 +21,8 @@ export default class DocumentDetail extends React.Component {
         documentId : props.match.params.documentId,
         document : {}
       }
+
+      TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
@@ -71,30 +74,48 @@ export default class DocumentDetail extends React.Component {
 
     getParagraph() {
       var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
-      Axios.get(url).then( response => {
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.get(url, headerObject).then( response => {
         console.log(response.data);
         this.state.document = response.data.document;
         this.state.total = response.data.document.questionIds.length;
-        this.search();
+        var SUCCESS_CODE = 1.1;
+        if (response.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
+        this.search(headerObject);
         this.forceUpdate();
       }).catch (error => {
         alert("Server Error :" + error);
+        TokenUtil.deleteCookie();
+        TokenUtil.redirectTo("/login");
       });
     }
 
-    search() {
+    search(headerObject) {
       var url = "http://35.240.130.216:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
-      this.getServerQuestion(url, queryData);
+      this.getServerQuestion(url, queryData, headerObject);
     }
 
-    getServerQuestion(url, query) {
-      Axios.post(url, query).then (
+    getServerQuestion(url, query, headerObject) {
+      Axios.post(url, query, headerObject).then (
         res => {
         this.state.questions = res.data.questions;
+        var SUCCESS_CODE = 1.1;
+        if (res.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
       });
     }
 

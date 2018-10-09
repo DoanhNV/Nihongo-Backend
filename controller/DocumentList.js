@@ -1,5 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class DocumentList extends React.Component {
     constructor(props) {
@@ -17,6 +18,8 @@ export default class DocumentList extends React.Component {
         currentPage : 1,
         postPerPage : initData.TAKE_NUMBER
       }
+
+      TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
@@ -74,13 +77,25 @@ export default class DocumentList extends React.Component {
     }
 
     getServerQuestion(url, query) {
-      Axios.post(url, query).then (
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.post(url, query, headerObject).then (
         res => {
         this.state.documents = res.data.documents;
         this.state.total = res.data.total;
+        var SUCCESS_CODE = 1.1;
+        if (res.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
       });
     }
 

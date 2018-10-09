@@ -3,6 +3,7 @@ import Axios from 'axios';
 import Layout from '../Layout';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Link, browerHistory } from 'react-router-dom';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class DocumentQuestionCreate extends React.Component {
     constructor(props) {
@@ -17,6 +18,7 @@ export default class DocumentQuestionCreate extends React.Component {
           document : {}
         }
 
+        TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
         this.initPage();
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
@@ -28,12 +30,24 @@ export default class DocumentQuestionCreate extends React.Component {
 
     getParagraph() {
       var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
-      Axios.get(url).then( response => {
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.get(url, headerObject).then( response => {
         console.log(response.data);
         this.state.document = response.data.document;
+        var SUCCESS_CODE = 1.1;
+        if (response.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
         this.forceUpdate();
       }).catch (error => {
         alert("Server Error :" + error);
+        TokenUtil.deleteCookie();
+        TokenUtil.redirectTo("/login");
       });
     }
 
@@ -50,25 +64,39 @@ export default class DocumentQuestionCreate extends React.Component {
       var formData = this.getFormData();
       var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
       var updateQuestionListURL = "http://35.240.130.216:6868/document/update";
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
       if(this.isValidData(formData)) {
         var data  = this.preparePostData(formData);
         console.log("insertData: "  + data);
-        Axios.post(createQuestionURL, data).then (
+        Axios.post(createQuestionURL, data, headerObject).then (
           res => {
             if(res.data.code == 1.1) {
               var updateData = this.prepareUpdateData(res.data.id);
               console.log("updateData: "  + updateData);
-              Axios.put(updateQuestionListURL, updateData).then (
+              Axios.put(updateQuestionListURL, updateData, headerObject).then (
                 res => {
                 var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
                 alert(alertStr);
+                var SUCCESS_CODE = 1.1;
+                if (res.data.code == SUCCESS_CODE) {
+                  TokenUtil.resetCookie(TokenUtil.getToken());
+                }
                 this.clearData();
               }).catch(error => {
                   alert("Server Error!: " + error);
+                  TokenUtil.deleteCookie();
+                  TokenUtil.redirectTo("/login");
               });
             }
         }).catch(error => {
             alert("Server Error!: " + error);
+            TokenUtil.deleteCookie();
+            TokenUtil.redirectTo("/login");
         });
       }
       e.preventDefault();

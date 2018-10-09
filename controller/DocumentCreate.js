@@ -11,7 +11,6 @@ export default class DocumentCreate extends React.Component {
           content : "",
           topic : 10,
           level : 0,
-          documentType: 0,
           questionIds : []
         }
 
@@ -31,11 +30,11 @@ export default class DocumentCreate extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        alert($.cookie("token"));
         this.processContent();
         var requestData = this.prepareRequestData();
         var headerObject = {
           headers: {
+            "Content-Type": "application/json",
             "access_token": TokenUtil.getToken()
           }
         }
@@ -45,7 +44,7 @@ export default class DocumentCreate extends React.Component {
             var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
             alert(alertStr);
             var SUCCESS_CODE = 1.1;
-            if (res.data.code == SUCCESS_CODE) {
+            if (response.data.code == SUCCESS_CODE) {
               TokenUtil.resetCookie(TokenUtil.getToken());
             }
             this.redirectTo("/document/" + response.data.id + "/insertquestion");
@@ -60,7 +59,6 @@ export default class DocumentCreate extends React.Component {
     prepareRequestData() {
         return {
             content : this.state.content,
-            type : this.state.documentType,
             questionIds : this.state.questionIds,
             topic : this.state.topic,
             level : this.state.level

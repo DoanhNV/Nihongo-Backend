@@ -1,5 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class ExamList extends React.Component {
     constructor(props) {
@@ -20,6 +21,8 @@ export default class ExamList extends React.Component {
         isFree : null,
         currentIndex : 0
       }
+
+      TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
@@ -69,7 +72,6 @@ export default class ExamList extends React.Component {
     }
 
     initPage() {
-      alert($.cookie("token"));
       this.search();
     }
 
@@ -80,13 +82,25 @@ export default class ExamList extends React.Component {
     }
 
     getServerQuestion(url, query) {
-      Axios.post(url, query).then (
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+      Axios.post(url, query, headerObject).then (
         res => {
         this.state.exams = res.data.exams;
         this.state.total = res.data.total;
+        var SUCCESS_CODE = 1.1;
+        if (res.data.code == SUCCESS_CODE) {
+          TokenUtil.resetCookie(TokenUtil.getToken());
+        }
         this.forceUpdate();
       }).catch(error => {
           alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
       });
     }
 
@@ -118,10 +132,18 @@ export default class ExamList extends React.Component {
         var value = e.target.dataset.value == 'true' ? 'false' : 'true';
         var css = Number(e.target.dataset.cssdata);
         var url = "http://35.240.130.216:6868/exam/update/" + examId;
+        var headerObject = {
+          headers: {
+            "Content-Type": "application/json",
+            "access_token": TokenUtil.getToken()
+          }
+        }
         var updateData = this.prepareUpdateData(field, value);
-        Axios.put(url, updateData).then((response) => {  
+        Axios.put(url, updateData, headerObject).then((response) => {  
             var code = response.data.code;
-            if(code == 1.1) {
+            var SUCCESS_CODE = 1.1;
+            if(code == SUCCESS_CODE) {
+                TokenUtil.resetCookie(TokenUtil.getToken());
                 var css0 = "color-green background-color-yellow width-80px ";
                 var css1 = "color-yellow background-color-green width-80px ";
 
@@ -149,6 +171,8 @@ export default class ExamList extends React.Component {
             }
         }).catch(error => {
             alert("Server error " + error);
+            TokenUtil.deleteCookie();
+            TokenUtil.redirectTo("/login");
         });
     }
 
