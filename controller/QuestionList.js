@@ -1,5 +1,6 @@
 import React from 'react';
 import Axios from 'axios';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 export default class QuestionList extends React.Component {
     constructor(props) {
@@ -17,6 +18,8 @@ export default class QuestionList extends React.Component {
         currentPage : 1,
         postPerPage : initData.TAKE_NUMBER
       }
+
+      TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
@@ -63,7 +66,6 @@ export default class QuestionList extends React.Component {
     }
 
     initPage() {
-      alert($.cookie("token"));
       this.search();
     }
 
@@ -72,7 +74,7 @@ export default class QuestionList extends React.Component {
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
-          "access_token": this.getToken()
+          "access_token": TokenUtil.getToken()
         }
       }
       this.getServerQuestion(url, queryData, headerObject);
@@ -83,7 +85,7 @@ export default class QuestionList extends React.Component {
         res => {
         var SUCCESS_CODE = 1.1;
         if (res.data.code == SUCCESS_CODE) {
-          this.resetCookie(this.getToken());
+          TokenUtil.resetCookie(TokenUtil.getToken());
           this.state.questions = res.data.questions;
           this.state.total = res.data.total;
           this.forceUpdate();
@@ -92,8 +94,8 @@ export default class QuestionList extends React.Component {
         }
       }).catch(error => {
           alert("Server Error!: " + error);
-          this.deleteCookie();
-          this.redirectTo("/login");
+          TokenUtil.deleteCookie();
+          //TokenUtil.redirectTo("/login");
       });
     }
 
@@ -137,32 +139,6 @@ export default class QuestionList extends React.Component {
         }
       } 
     }
-
-    resetCookie(token) {
-      this.deleteCookie();
-      var date = new Date();
-      const TOKEN_SERVICE_TIME = 30;
-      var currentTime = new Date();
-      currentTime.setMinutes(date.getMinutes() + TOKEN_SERVICE_TIME);
-      this.saveCookie(token, currentTime);
-    }
-  
-    deleteCookie() {
-        $.removeCookie('token', { path: '/' });
-    }
-
-    saveCookie(token, expiresTime) {
-        $.cookie("token", token, { expires: expiresTime});
-    }
-
-    getToken() {
-      return $.cookie("token");
-    }
-
-    redirectTo(url) {
-      window.location.href = url;
-    }
-    
 
     paging() {
       var postPerPage = this.state.postPerPage;

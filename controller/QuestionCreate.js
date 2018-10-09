@@ -17,10 +17,15 @@ export default class QuestionCreate extends React.Component {
           textAudioQuestion : ""
         }
 
+        this.initPage();
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.handleUploadImage = this.handleUploadImage.bind(this);
         this.handleTextAudioQuestionChange = this.handleTextAudioQuestionChange.bind(this);
+    }
+
+    initPage() {
+      alert($.cookie("token"));
     }
 
     handleChange(e) {

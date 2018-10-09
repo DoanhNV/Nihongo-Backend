@@ -69,6 +69,7 @@ export default class ExamList extends React.Component {
     }
 
     initPage() {
+      alert($.cookie("token"));
       this.search();
     }
 

@@ -1,9 +1,9 @@
 import React from 'react';
 import Axios from 'axios';
 import ReactDOM from 'react-dom';
-import { Redirect, withRouter} from 'react-router-dom';
+import * as TokenUtil from '../util/TokenUtil.js';
 
-class DocumentCreate extends React.Component {
+export default class DocumentCreate extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -15,6 +15,7 @@ class DocumentCreate extends React.Component {
           questionIds : []
         }
 
+        TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
     }
@@ -30,17 +31,28 @@ class DocumentCreate extends React.Component {
 
     handleSubmit(e) {
         e.preventDefault();
-        
+        alert($.cookie("token"));
         this.processContent();
         var requestData = this.prepareRequestData();
+        var headerObject = {
+          headers: {
+            "access_token": TokenUtil.getToken()
+          }
+        }
         var url = "http://35.240.130.216:6868/document/create";
         if(this.isValidParagraph(this.state.content)) {
-          Axios.post(url, requestData).then(response => {
+          Axios.post(url, requestData, headerObject).then(response => {
             var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
             alert(alertStr);
+            var SUCCESS_CODE = 1.1;
+            if (res.data.code == SUCCESS_CODE) {
+              TokenUtil.resetCookie(TokenUtil.getToken());
+            }
             this.redirectTo("/document/" + response.data.id + "/insertquestion");
             }).catch (error => {
                 alert("Server Error!: " + error);
+                TokenUtil.deleteCookie();
+                TokenUtil.redirectTo("/login");
             })
         }
     }
@@ -166,6 +178,3 @@ const initData = {
     {name : "N5", value : 5}
   ]
 }
-
-export default withRouter(DocumentCreate);
-

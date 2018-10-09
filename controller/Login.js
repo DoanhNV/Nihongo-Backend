@@ -2,6 +2,7 @@ import React from 'react';
 import Axios from 'axios';
 import ReactDOM from 'react-dom';
 import { Redirect, withRouter} from 'react-router-dom';
+import * as TokenUtil from '../util/TokenUtil.js';
 
 class Login extends React.Component {
     constructor(props) {
@@ -18,25 +19,6 @@ class Login extends React.Component {
         var name = e.target.name;
         var value = e.target.value;
         this.setState({ [name] : value});
-    }
-
-    resetCookie(token) {
-        this.deleteCookie();
-        var date = new Date();
-        const TOKEN_SERVICE_TIME = 30;
-        var currentTime = new Date();
-        currentTime.setMinutes(date.getMinutes() + TOKEN_SERVICE_TIME);
-        alert(currentTime.toLocaleDateString());
-        this.saveCookie(token, currentTime);
-    }
-    
-    deleteCookie() {
-        $.removeCookie('token', { path: '/' });
-    }
-
-    saveCookie(token, expiresTime) {
-        $.cookie("token", token, { expires: expiresTime});
-        alert($.cookie("token"));
     }
 
     handleSubmit(e) {
@@ -62,7 +44,7 @@ class Login extends React.Component {
                 var isAdminUser = response.data.user.userType == 0;
                 if (isAdminUser) {
                     var token = response.data.user.accessToken;
-                    this.resetCookie(token);
+                    TokenUtil.resetCookie(token);
                     this.redirectTo("/");
                 }
             } else if(code ==  NOT_EXIST_USER_CODE) {
