@@ -1,6 +1,7 @@
 import React from 'react';
 import Axios from 'axios';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class ExamSettingNumber extends React.Component {
     constructor(props) {
@@ -64,7 +65,7 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     getData() {
-      var url = "http://35.240.130.216:6868/setting/exam/list";
+      var url = "http://localhost:6868/setting/exam/list";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -73,6 +74,7 @@ export default class ExamSettingNumber extends React.Component {
       }
       Axios.get(url, headerObject).then (
         res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
         this.state.examSettings = res.data.examSettings;
         console.log(res);
         var SUCCESS_CODE = 1.1;
@@ -88,7 +90,7 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     updateData(id, level, inputClassDom) {
-      var url = "http://35.240.130.216:6868/setting/exam/set/number";
+      var url = "http://localhost:6868/setting/exam/set/number";
       var data = this.prepareUpdateData(id, level, inputClassDom);
       var headerObject = {
         headers: {

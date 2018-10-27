@@ -4,6 +4,7 @@ import Layout from '../Layout';
 import ReactDOM from 'react-dom';
 import { BrowserRouter as Router, Switch, Route, Link, browerHistory } from 'react-router-dom';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class DocumentQuestionCreate extends React.Component {
     constructor(props) {
@@ -29,7 +30,7 @@ export default class DocumentQuestionCreate extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
+      var url = "http://localhost:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -38,6 +39,7 @@ export default class DocumentQuestionCreate extends React.Component {
       }
       Axios.get(url, headerObject).then( response => {
         console.log(response.data);
+        response.data = SecurityUtil.decryptData(response.data.data);
         this.state.document = response.data.document;
         var SUCCESS_CODE = 1.1;
         if (response.data.code == SUCCESS_CODE) {
@@ -62,8 +64,8 @@ export default class DocumentQuestionCreate extends React.Component {
 
     async handleSubmit(e) {
       var formData = this.getFormData();
-      var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
-      var updateQuestionListURL = "http://35.240.130.216:6868/document/update";
+      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
+      var updateQuestionListURL = "http://localhost:6868/document/update";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -75,6 +77,7 @@ export default class DocumentQuestionCreate extends React.Component {
         console.log("insertData: "  + data);
         Axios.post(createQuestionURL, data, headerObject).then (
           res => {
+            res.data = SecurityUtil.decryptData(res.data.data);
             if(res.data.code == 1.1) {
               var updateData = this.prepareUpdateData(res.data.id);
               console.log("updateData: "  + updateData);

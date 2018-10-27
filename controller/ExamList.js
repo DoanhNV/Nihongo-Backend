@@ -1,6 +1,7 @@
 import React from 'react';
 import Axios from 'axios';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class ExamList extends React.Component {
     constructor(props) {
@@ -76,7 +77,7 @@ export default class ExamList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/exam/search";
+      var url = "http://localhost:6868/exam/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -90,6 +91,7 @@ export default class ExamList extends React.Component {
       }
       Axios.post(url, query, headerObject).then (
         res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
         this.state.exams = res.data.exams;
         this.state.total = res.data.total;
         var SUCCESS_CODE = 1.1;
@@ -131,7 +133,7 @@ export default class ExamList extends React.Component {
         var field = e.target.dataset.field;
         var value = e.target.dataset.value == 'true' ? 'false' : 'true';
         var css = Number(e.target.dataset.cssdata);
-        var url = "http://35.240.130.216:6868/exam/update/" + examId;
+        var url = "http://localhost:6868/exam/update/" + examId;
         var headerObject = {
           headers: {
             "Content-Type": "application/json",
@@ -140,6 +142,7 @@ export default class ExamList extends React.Component {
         }
         var updateData = this.prepareUpdateData(field, value);
         Axios.put(url, updateData, headerObject).then((response) => {  
+            response.data = SecurityUtil.decryptData(response.data.data);
             var code = response.data.code;
             var SUCCESS_CODE = 1.1;
             if(code == SUCCESS_CODE) {

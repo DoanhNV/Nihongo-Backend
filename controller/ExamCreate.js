@@ -3,6 +3,7 @@ import Axios from 'axios';
 import ReactDOM from 'react-dom';
 import { Redirect, withRouter} from 'react-router-dom';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 class ExamCreate extends React.Component {
     constructor(props) {
@@ -26,7 +27,7 @@ class ExamCreate extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
         var createData = this.prepareRequestData();
-        var url = "http://35.240.130.216:6868/exam/create/random";
+        var url = "http://localhost:6868/exam/create/random";
         var headerObject = {
           headers: {
             "Content-Type": "application/json",
@@ -34,6 +35,7 @@ class ExamCreate extends React.Component {
           }
         }
         Axios.post(url, createData, headerObject).then(response => {
+            response.data = SecurityUtil.decryptData(response.data.data);
             var alertStr = "";
             var responceCode = response.data.code; 
             if(responceCode == 1.1) {

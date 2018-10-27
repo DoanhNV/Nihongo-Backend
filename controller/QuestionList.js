@@ -1,6 +1,7 @@
 import React from 'react';
 import Axios from 'axios';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class QuestionList extends React.Component {
     constructor(props) {
@@ -70,7 +71,7 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/mvcquestion/search";
+      var url = "http://localhost:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
@@ -84,14 +85,14 @@ export default class QuestionList extends React.Component {
     getServerQuestion(url, query, headerObject) {
       Axios.post(url, query, headerObject).then (
         res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
         var SUCCESS_CODE = 1.1;
+        console.log("res.data: " + res.data);
         if (res.data.code == SUCCESS_CODE) {
           TokenUtil.resetCookie(TokenUtil.getToken());
           this.state.questions = res.data.questions;
           this.state.total = res.data.total;
           this.forceUpdate();
-        } else {
-          this.redirectTo("/login");
         }
       }).catch(error => {
           alert("Server Error!: " + error);
@@ -127,7 +128,7 @@ export default class QuestionList extends React.Component {
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
+        var uploadFileURL = "http://localhost:6868/file/load/base64";
         var documentFile = { filePath : question.document};
         var headerObject = {
           headers: {
@@ -137,6 +138,7 @@ export default class QuestionList extends React.Component {
         }
         if(isImage) {
           Axios.post(uploadFileURL, documentFile, headerObject).then ( res => {
+            res.data = SecurityUtil.decryptData(res.data.data);
             var SUCCESS_CODE = 1.1;
             if (res.data.code == SUCCESS_CODE) {
               TokenUtil.resetCookie(TokenUtil.getToken());

@@ -3,6 +3,7 @@ import Axios from 'axios';
 import ReactDOM from 'react-dom';
 import { Redirect, withRouter} from 'react-router-dom';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 class Login extends React.Component {
     constructor(props) {
@@ -27,8 +28,9 @@ class Login extends React.Component {
     }
 
     login() {
+        
         if (this.isValidLoginData()) {
-            var url = "http://35.240.130.216:6868/user/login";
+            var url = "http://localhost:6868/user/login";
             var query = this.prepareQueryData();
             this.postToServer(url, query);
         }
@@ -36,7 +38,7 @@ class Login extends React.Component {
 
     postToServer(url, query) {
         Axios.post(url, query).then(response => {
-            console.log(response.data);
+            response.data = SecurityUtil.decryptData(response.data.data);
             var SUCCESS_CODE = 1.1;
             var NOT_EXIST_USER_CODE = 2.5;
             var code = response.data.code;

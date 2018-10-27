@@ -2,6 +2,7 @@ import React from 'react';
 import Axios from 'axios';
 import ReactDOM from 'react-dom';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class DocumentCreate extends React.Component {
     constructor(props) {
@@ -38,9 +39,10 @@ export default class DocumentCreate extends React.Component {
             "access_token": TokenUtil.getToken()
           }
         }
-        var url = "http://35.240.130.216:6868/document/create";
+        var url = "http://localhost:6868/document/create";
         if(this.isValidParagraph(this.state.content)) {
           Axios.post(url, requestData, headerObject).then(response => {
+            response.data = SecurityUtil.decryptData(response.data.data);
             var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
             alert(alertStr);
             var SUCCESS_CODE = 1.1;

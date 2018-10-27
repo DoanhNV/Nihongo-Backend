@@ -1,6 +1,7 @@
 import React from 'react';
 import Axios from 'axios';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class DocumentList extends React.Component {
     constructor(props) {
@@ -71,7 +72,7 @@ export default class DocumentList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/document/search";
+      var url = "http://localhost:6868/document/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -85,6 +86,7 @@ export default class DocumentList extends React.Component {
       }
       Axios.post(url, query, headerObject).then (
         res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
         this.state.documents = res.data.documents;
         this.state.total = res.data.total;
         var SUCCESS_CODE = 1.1;

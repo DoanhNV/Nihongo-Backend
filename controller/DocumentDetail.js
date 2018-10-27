@@ -2,6 +2,7 @@ import React from 'react';
 import Axios from 'axios';
 import Layout from '../Layout';
 import * as TokenUtil from '../util/TokenUtil.js';
+import * as SecurityUtil from '../util/SecurityUtil.js';
 
 export default class DocumentDetail extends React.Component {
     constructor(props) {
@@ -73,7 +74,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
+      var url = "http://localhost:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -85,6 +86,7 @@ export default class DocumentDetail extends React.Component {
         this.state.document = response.data.document;
         this.state.total = response.data.document.questionIds.length;
         var SUCCESS_CODE = 1.1;
+        response.data = SecurityUtil.decryptData(response.data.data);
         if (response.data.code == SUCCESS_CODE) {
           TokenUtil.resetCookie(TokenUtil.getToken());
         }
@@ -98,7 +100,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     search(headerObject) {
-      var url = "http://35.240.130.216:6868/mvcquestion/list";
+      var url = "http://localhost:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData, headerObject);
     }
@@ -106,6 +108,7 @@ export default class DocumentDetail extends React.Component {
     getServerQuestion(url, query, headerObject) {
       Axios.post(url, query, headerObject).then (
         res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
         this.state.questions = res.data.questions;
         var SUCCESS_CODE = 1.1;
         if (res.data.code == SUCCESS_CODE) {
