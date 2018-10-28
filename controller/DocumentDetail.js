@@ -74,7 +74,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -100,7 +100,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     search(headerObject) {
-      var url = "http://localhost:6868/mvcquestion/list";
+      var url = "http://35.240.130.216:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData, headerObject);
     }

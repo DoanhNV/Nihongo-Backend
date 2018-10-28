@@ -55,8 +55,8 @@ export default class QuestionCreate extends React.Component {
     async handleSubmit(e) {
       var formData = this.getFormData();
       
-      var uploadFileURL = "http://localhost:6868/file/upload/base64";
-      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
+      var uploadFileURL = "http://35.240.130.216:6868/file/upload/base64";
+      var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
       var base64Data =  $("#base64").val();
       if(this.isValidData(formData)) {
         var uploadData = this.prepareUploadImageData();

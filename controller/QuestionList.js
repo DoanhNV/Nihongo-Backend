@@ -71,7 +71,7 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/mvcquestion/search";
+      var url = "http://35.240.130.216:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
@@ -128,7 +128,7 @@ export default class QuestionList extends React.Component {
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://localhost:6868/file/load/base64";
+        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
         var documentFile = { filePath : question.document};
         var headerObject = {
           headers: {

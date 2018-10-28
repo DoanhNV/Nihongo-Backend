@@ -39,7 +39,7 @@ export default class DocumentCreate extends React.Component {
             "access_token": TokenUtil.getToken()
           }
         }
-        var url = "http://localhost:6868/document/create";
+        var url = "http://35.240.130.216:6868/document/create";
         if(this.isValidParagraph(this.state.content)) {
           Axios.post(url, requestData, headerObject).then(response => {
             response.data = SecurityUtil.decryptData(response.data.data);

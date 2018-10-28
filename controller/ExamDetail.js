@@ -46,7 +46,7 @@ export default class ExamDetail extends React.Component {
     getDetailExam() {
       var examId =  this.state.examId;
       var backendMode = 0;
-      var url = "http://localhost:6868/exam/detail/" + examId  + "/" + backendMode;
+      var url = "http://35.240.130.216:6868/exam/detail/" + examId  + "/" + backendMode;
       this.getServerQuestion(url);
     }
 
@@ -90,7 +90,7 @@ export default class ExamDetail extends React.Component {
                         : field === "completedMinutes" ?  $("#txtCompletedMinutes").val() 
                             : e.target.dataset.value == 'true' ? 'false' : 'true';
         var css = Number(e.target.dataset.cssdata);
-        var url = "http://localhost:6868/exam/update/" + examId;
+        var url = "http://35.240.130.216:6868/exam/update/" + examId;
         var headerObject = {
             headers: {
               "Content-Type": "application/json",

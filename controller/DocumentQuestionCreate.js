@@ -30,7 +30,7 @@ export default class DocumentQuestionCreate extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -64,8 +64,8 @@ export default class DocumentQuestionCreate extends React.Component {
 
     async handleSubmit(e) {
       var formData = this.getFormData();
-      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
-      var updateQuestionListURL = "http://localhost:6868/document/update";
+      var createQuestionURL = "http://35.240.130.216:6868/mvcquestion/create";
+      var updateQuestionListURL = "http://35.240.130.216:6868/document/update";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
