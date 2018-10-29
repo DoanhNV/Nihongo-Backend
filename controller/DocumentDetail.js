@@ -82,11 +82,10 @@ export default class DocumentDetail extends React.Component {
         }
       }
       Axios.get(url, headerObject).then( response => {
-        console.log(response.data);
+        response.data = SecurityUtil.decryptData(response.data.data);
         this.state.document = response.data.document;
         this.state.total = response.data.document.questionIds.length;
         var SUCCESS_CODE = 1.1;
-        response.data = SecurityUtil.decryptData(response.data.data);
         if (response.data.code == SUCCESS_CODE) {
           TokenUtil.resetCookie(TokenUtil.getToken());
         }
