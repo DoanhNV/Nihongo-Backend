@@ -25,6 +25,7 @@ export default class QuestionList extends React.Component {
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
+      this.handleUpdate = this.handleUpdate.bind(this);
     }
 
     handleSearch() {
@@ -71,7 +72,7 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/mvcquestion/search";
+      var url = "http://localhost:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
@@ -125,10 +126,19 @@ export default class QuestionList extends React.Component {
       }
     }
 
+    handleUpdate(e) {
+      var id = e.target.dataset.id;
+      this.redirectTo("/question/edit/"+ id);
+    }
+
+    redirectTo(url) {
+      window.location.href = url;
+    }
+
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://35.240.130.216:6868/file/load/base64";
+        var uploadFileURL = "http://localhost:6868/file/load/base64";
         var documentFile = { filePath : question.document};
         var headerObject = {
           headers: {
@@ -282,7 +292,9 @@ export default class QuestionList extends React.Component {
                             <div id="profile" class="tab-pane">
                                 <section class="panel"> 
                                     <div class="bio-graph-heading question-title">
-                                    <div dangerouslySetInnerHTML={{__html: question.title}} />
+                                      <div dangerouslySetInnerHTML={{__html: question.title}} />
+                                      <button class="btn btn-success"  data-id={question.id} onClick={this.handleUpdate}>Update</button> <span> </span>
+                                      <button class="btn btn-danger" >Delete</button> <span> </span>
                                     </div>
                                     <div class="panel-body bio-graph-info">
                                         <p class="question-sub"><span>Sub </span>: {question.titleSub} </p>

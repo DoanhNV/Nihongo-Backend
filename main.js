@@ -11,6 +11,7 @@ import ExamCreate from './controller/ExamCreate.js';
 import QuestionList from './controller/QuestionList.js';
 import DocumentList from './controller/DocumentList.js';
 import QuestionCreate from './controller/QuestionCreate.js';
+import QuestionEdition from './controller/QuestionEdition.js';
 import DocumentCreate from './controller/DocumentCreate.js';
 import DocumentDetail from './controller/DocumentDetail.js';
 import ExamSettingNumber from './controller/ExamSettingNumber.js';
@@ -27,6 +28,7 @@ class Application extends React.Component {
                         {/* Question */}
                         <Route exact path="/question/list" component={() => <Layout><QuestionList/></Layout>}/>
                         <Route exact path="/question/create" component={() => <Layout><QuestionCreate/></Layout>}/>
+                        <Route exact path="/question/edit/:questionId?" component={QuestionEdition}/>
                         {/* Document */}
                         <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
                         <Route exact path="/document/:documentId?/insertquestion" component={DocumentQuestionCreate}/>
