@@ -9,6 +9,7 @@ export function resetCookie(token) {
 
 export function redirectWhenNotExistToken(token) {
   if(token == null || token === "" || token === "undefined") {
+    alert("token: " + token);
     redirectTo("/login");
   }
 }
@@ -18,7 +19,7 @@ export function deleteCookie() {
 }
 
 export function saveCookie(token, expiresTime) {
-    $.cookie("token", token, {expires: expiresTime});
+    $.cookie("token", token, { Path: "/",expires: expiresTime});
 }
 
 export function getToken() {

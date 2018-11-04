@@ -26,6 +26,7 @@ export default class DocumentList extends React.Component {
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
       this.handleAction = this.handleAction.bind(this);
+      this.handleDelete = this.handleDelete.bind(this);
     }
 
     handleSearch() {
@@ -72,7 +73,7 @@ export default class DocumentList extends React.Component {
     }
 
     search() {
-      var url = "http://35.240.130.216:6868/document/search";
+      var url = "http://localhost:6868/document/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -123,8 +124,62 @@ export default class DocumentList extends React.Component {
         case 1: 
             this.detail(e);
             break;
+        case 2:
+            this.handleUpdate(e);
+            break;
+        case 3:
+            this.handleDelete(e);
+            break;
         default:
       }
+    }
+
+    handleDelete(e) {
+      var CONFIRM_MESSAGE = "You really want to delete this document?";
+      if (!confirm (CONFIRM_MESSAGE)) {
+        return;
+      }
+      var id = e.target.dataset.id;
+      var deleteURL =  "http://localhost:6868/document/delete"
+      var deleteData = {
+        id : id
+      }
+
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+
+      Axios.put(deleteURL, deleteData, headerObject).then (
+        res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
+        var SUCCESS_CODE = 1.1;
+        var DOCUMENT_IS_IN_EXAM_CODE = 6.2;
+        console.log("res.data: " + res.data);
+        switch (res.data.code) {
+          case SUCCESS_CODE:
+            TokenUtil.resetCookie(TokenUtil.getToken());
+            this.search();
+            this.forceUpdate();
+            break;
+          case DOCUMENT_IS_IN_EXAM_CODE:
+            alert("Please DELETE EXAM before delete this document!");
+            break;
+          default:
+            alert("Delete fail!");
+        }
+      }).catch(error => {
+          alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
+      });
+    }
+
+    handleUpdate(e) {
+      var documentId = e.target.dataset.id;
+      this.redirectTo("/document/edit/" + documentId);
     }
 
     handleAddQuestion(e) {
@@ -291,8 +346,8 @@ export default class DocumentList extends React.Component {
                                       <div class="width-70percent text-align-right">
                                         <button class="btn btn-primary" data-id={document.id} data-type="0" onClick={this.handleAction}>Add question</button> <span> </span>
                                         <button class="btn btn-info" data-id={document.id} data-type="1"  onClick={this.handleAction}>Detail</button> <span> </span>
-                                        <button class="btn btn-success" >Update</button> <span> </span>
-                                        <button class="btn btn-danger" >Delete</button> <span> </span>
+                                        <button class="btn btn-success" data-id={document.id} data-type="2"  onClick={this.handleAction}>Update</button> <span> </span>
+                                        <button class="btn btn-danger" data-id={document.id} data-type="3"  onClick={this.handleAction}>Delete</button> <span> </span>
                                       </div>
                                     </div>
                                     <div class="panel-body bio-graph-info">

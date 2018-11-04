@@ -13,9 +13,11 @@ import DocumentList from './controller/DocumentList.js';
 import QuestionCreate from './controller/QuestionCreate.js';
 import QuestionEdition from './controller/QuestionEdition.js';
 import DocumentCreate from './controller/DocumentCreate.js';
+import DocumentEdition from './controller/DocumentEdition.js';
 import DocumentDetail from './controller/DocumentDetail.js';
 import ExamSettingNumber from './controller/ExamSettingNumber.js';
 import DocumentQuestionCreate from './controller/DocumentQuestionCreate.js';
+import DocumentQuestionEdition from './controller/DocumentQuestionEdition.js';
 import { BrowserRouter as Router, Switch, Route, Link, browserHistory } from 'react-router-dom';
 
 class Application extends React.Component {
@@ -31,7 +33,9 @@ class Application extends React.Component {
                         <Route exact path="/question/edit/:questionId?" component={QuestionEdition}/>
                         {/* Document */}
                         <Route exact path="/document/create" component={() => <Layout><DocumentCreate/></Layout>}/>
+                        <Route exact path="/document/edit/:documentId?" component={DocumentEdition}/>
                         <Route exact path="/document/:documentId?/insertquestion" component={DocumentQuestionCreate}/>
+                        <Route exact path="/document/:documentId?/question/:questionId?/edit" component={DocumentQuestionEdition}/>
                         <Route exact path="/document/list" component={() => <Layout><DocumentList/></Layout>}/>
                         <Route exact path="/document/:documentId?" component={DocumentDetail}/>
                         {/* Setting */}

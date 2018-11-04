@@ -19,7 +19,10 @@ export default class QuestionEdition extends React.Component {
           topicMode : 0,
           textAudioQuestion : "",
           updateQuestionId : props.match.params.questionId,
-          question : {}
+          question : {},
+          initAnswer : [],
+          initAudioDocument : "",
+          initImageDocument : ""
         }
 
         TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
@@ -38,6 +41,7 @@ export default class QuestionEdition extends React.Component {
           "access_token": TokenUtil.getToken()
         }
       }
+      
       Axios.get(url, headerObject).then( response => {
         response.data = SecurityUtil.decryptData(response.data.data);
         console.log("response.data: " + response.data);
@@ -45,10 +49,43 @@ export default class QuestionEdition extends React.Component {
         if (response.data.code == SUCCESS_CODE) {
           TokenUtil.resetCookie(TokenUtil.getToken());
           this.state.question = response.data.question;
+          this.state.initAnswer = response.data.question.answers;
+          this.state.topicMode = response.data.question.topic;
           var htmlTitle = this.state.question.title;
-          $("#editor").append(htmlTitle);
-          ReactDOM.findDOMNode(document.getElementById("editor")).innerHTML = htmlTitle;
+
+          if(this.state.question.document.endsWith(".png")) {
+            var uploadFileURL = "http://localhost:6868/file/load/base64";
+            var documentFile = { filePath : this.state.question.document};
+
+            var headerObject = {
+              headers: {
+                "Content-Type": "application/json",
+                "access_token": TokenUtil.getToken()
+              }
+            }
+
+            Axios.post(uploadFileURL, documentFile, headerObject).then ( res => {
+              res.data = SecurityUtil.decryptData(res.data.data);
+              var SUCCESS_CODE = 1.1;
+              if (res.data.code == SUCCESS_CODE) {
+                TokenUtil.resetCookie(TokenUtil.getToken());
+              }
+
+              $("#previewImage").attr("src",res.data.base64Str);
+              var imgaeTag = document.getElementById("previewImage");
+              imgaeTag.className = "show";
+            }).catch(error => {
+                alert("Server Error!: " + error);
+                TokenUtil.deleteCookie();
+                TokenUtil.redirectTo("/login");
+            });
+          } else {
+            this.state.initAudioDocument = this.state.question.document;
+          }
           this.forceUpdate();
+          CKEDITOR.on('instanceReady', function() {
+             $("#editor").append(htmlTitle); 
+          });
         }
       }).catch (error => {
         alert("Server Error :" + error);
@@ -79,31 +116,60 @@ export default class QuestionEdition extends React.Component {
       $("#documentImage").val("");
     }
 
-    async handleSubmit(e) {
+     async handleSubmit(e) {
+      
       var formData = this.getFormData();
       
       var uploadFileURL = "http://localhost:6868/file/upload/base64";
-      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
+      var updateQuestionURL = "http://localhost:6868/mvcquestion/update";
       var base64Data =  $("#base64").val();
       if(this.isValidData(formData)) {
         var uploadData = this.prepareUploadImageData();
+
+        console.log(" this.state.topicMode == 7 && base64Data != :" +  (this.state.topicMode == 7 && base64Data != ""));
+        console.log("uploadData: " + JSON.stringify(uploadData));
         if( this.state.topicMode == 7 && base64Data != "") {
-          var uploadResponse = this.uploadFileToServer(uploadFileURL, uploadData);
-          uploadResponse.then(res => {
+          var headerObject = {
+            headers: {
+              "Content-Type": "application/json",
+              "access_token": TokenUtil.getToken()
+            }
+          }
+          Axios.post(uploadFileURL, uploadData, headerObject).then(res => {
+            alert("Done upload");
             res.data = SecurityUtil.decryptData(res.data.data);
             console.log("uploadFile: " +  res.data.code);
             var data  = this.preparePostData(formData, res.data.filePath);
             console.log(data);
-            this.postToServer(createQuestionURL, data);
+
+            Axios.put(updateQuestionURL, data, headerObject).then (
+                res => {
+                res.data = SecurityUtil.decryptData(res.data.data);
+                var alertStr = res.data.code == 1.1 ? "Update success!" : "Update Fail!";
+                alert(alertStr);
+                var SUCCESS_CODE = 1.1;
+                if (res.data.code == SUCCESS_CODE) {
+                  TokenUtil.resetCookie(TokenUtil.getToken());
+                }
+                this.clearData();
+            }).catch(error => {
+                alert("Server Error!: " + error);
+                TokenUtil.deleteCookie();
+                TokenUtil.redirectTo("/login");
+            });
           }).catch(error => {
             alert("Server Error!");
             TokenUtil.deleteCookie();
             TokenUtil.redirectTo("/login");
           });
+        } else if (this.state.topicMode == 7 && base64Data === "" && this.state.textAudioQuestion === "") {
+          var data  = this.preparePostData(formData, this.state.question.document);
+          console.log(data);
+          this.postToServer(updateQuestionURL, data);
         } else {
           var data  = this.preparePostData(formData, this.state.textAudioQuestion);
           console.log(data);
-          this.postToServer(createQuestionURL, data);
+          this.postToServer(updateQuestionURL, data);
         }
       }
       e.preventDefault();
@@ -119,8 +185,9 @@ export default class QuestionEdition extends React.Component {
 
     preparePostData(formData, documentData) {
       return {
+        id : this.state.question.id,
         title : formData.htmlTitle,
-        topic : this.state.topic,
+        topic : this.state.topicMode,
         level : this.state.level,
         answers: formData.answers,
         titleSub : this.state.subTitle,
@@ -135,7 +202,7 @@ export default class QuestionEdition extends React.Component {
           "access_token": TokenUtil.getToken()
         }
       }
-      Axios.post(url, data, headerObject).then (
+      Axios.put(url, data, headerObject).then (
           res => {
           res.data = SecurityUtil.decryptData(res.data.data);
           var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
@@ -271,7 +338,7 @@ export default class QuestionEdition extends React.Component {
                       </header>
                       <div class="panel-body">
                         <div id="editor" class="btn-toolbar" data-role="editor-toolbar" data-target="#editor">
-                          {this.state.question.title}
+                          
                         </div>
                       </div>
                     </section>
@@ -280,14 +347,14 @@ export default class QuestionEdition extends React.Component {
                     <div id="subTitleDiv" class="form-group">
                         <label class="control-label col-lg-1" for="exampleInputFile">Sub for Question</label>
                         <div class="col-lg-10">
-                          <input type="text" id="subTitleID" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
+                          <input type="text" defaultValue={this.state.question.titleSub} id="subTitleID" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
                         </div>
                     </div>
                     {/* Text audio */}
                     <div id="subTitleDiv" class="form-group">
                         <label class="control-label col-lg-1" for="exampleInputFile">Text audio question</label>
                         <div class="col-lg-10">
-                          <input type="text" id="textAudioQ" name="textAudioQuestion" class="form-control" onChange={e => {this.handleTextAudioQuestionChange(e); this.handleChange(e)}} placeholder="placeholder" />
+                          <input type="text" defaultValue={this.state.initAudioDocument} id="textAudioQ" name="textAudioQuestion" class="form-control" onChange={e => {this.handleTextAudioQuestionChange(e); this.handleChange(e)}} placeholder="placeholder" />
                         </div>
                     </div>
                     {/* Upload image  document */}
@@ -305,12 +372,13 @@ export default class QuestionEdition extends React.Component {
                       <label class="control-label col-lg-1" for="inputSuccess"><b>Answer</b></label>
                       <div class="col-lg-10">
                         {
-                          Array(this.state.initData.defaultAnswerNumber).fill(2).map((i) => {
+                          
+                          this.state.initAnswer.map((anwser) => {
                             return (
                                   <div class="radio">
                                     <label>
-                                      <input type="radio" name="correctvalues"  class="isCorrects" value={i}/>
-                                      <input class=" form-control" id="answers" name="answers" type="text"/>
+                                      <input type="radio" defaultChecked={anwser.isCorrect} name="correctvalues"  class="isCorrects"/>
+                                      <input type="text"  defaultValue={anwser.content} class=" form-control" id="answers" name="answers" />
                                     </label>
                                   </div>
                               );
@@ -324,7 +392,11 @@ export default class QuestionEdition extends React.Component {
                       <div class="col-lg-4">
                         <select name="topic" class="form-control m-bot15" onChange={this.handleChange}>
                             {this.state.initData.defaultTopic.map((topic) => {
-                              return <option value={topic.value}>{topic.name}</option>
+                              if (topic.value == this.state.question.topic) {
+                                return <option value={topic.value} selected>{topic.name}</option>
+                              } else {
+                                return <option value={topic.value}>{topic.name}</option>
+                              }
                             })}
                             {this.initData}
                         </select>
@@ -337,7 +409,11 @@ export default class QuestionEdition extends React.Component {
                       <div class="col-lg-4">
                         <select name="level" class="form-control m-bot15" onChange={this.handleChange}>
                             {this.state.initData.defaultLevel.map((level) => {
-                              return <option value={level.value}>{level.name}</option>
+                              if (level.value == this.state.question.level) {
+                               return <option value={level.value} selected>{level.name}</option>
+                              } else {
+                                return <option value={level.value}>{level.name}</option>
+                              }
                             })}
                         </select>
                       </div>

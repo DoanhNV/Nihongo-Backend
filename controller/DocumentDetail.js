@@ -25,9 +25,11 @@ export default class DocumentDetail extends React.Component {
 
       TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
       this.initPage();
+      this.handleUpdate = this.handleUpdate.bind(this);
       this.handleChange = this.handleChange.bind(this);
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
+      this.handleDelete = this.handleDelete.bind(this);
     }
 
     handleSearch() {
@@ -74,7 +76,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://35.240.130.216:6868/document/get/" + this.state.documentId;
+      var url = "http://localhost:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -99,7 +101,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     search(headerObject) {
-      var url = "http://35.240.130.216:6868/mvcquestion/list";
+      var url = "http://localhost:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData, headerObject);
     }
@@ -128,6 +130,55 @@ export default class DocumentDetail extends React.Component {
       return {
         questionIds : questionIds.slice(skip, take)
       }
+    }
+
+    handleUpdate(e) {
+      var questionId = e.target.dataset.id;
+      var documentId = this.state.documentId;
+      var updateURL =  "/document/" + documentId + "/question/" + questionId + "/edit";
+      TokenUtil.redirectTo(updateURL);
+    }
+
+    handleDelete(e) {
+      var CONFIRM_MESSAGE = "You really want to delete this question?";
+      if (!confirm (CONFIRM_MESSAGE)) {
+        return;
+      }
+      var id = e.target.dataset.id;
+      var deleteURL =  "http://localhost:6868/mvcquestion/deleteDQuestion"
+      var deleteData = {
+        id : id,
+        documentId : this.state.documentId
+      }
+
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+
+      Axios.put(deleteURL, deleteData, headerObject).then (
+        res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
+        var SUCCESS_CODE = 1.1;
+        var DOCUMENT_IS_IN_EXAM_CODE = 6.2;
+        console.log("res.data: " + res.data);
+        var responseCode = Number(res.data.code);
+        switch (responseCode) {
+          case SUCCESS_CODE:
+            TokenUtil.resetCookie(TokenUtil.getToken());
+            this.search();
+            this.forceUpdate();
+            break;
+          default:
+            alert("Delete fail!");
+        }
+      }).catch(error => {
+          alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
+      });
     }
     
 
@@ -232,7 +283,9 @@ export default class DocumentDetail extends React.Component {
                             <div id="profile" class="tab-pane">
                                 <section class="panel"> 
                                     <div class="bio-graph-heading question-title">
-                                    <div dangerouslySetInnerHTML={{__html: question.title}} />
+                                      <div dangerouslySetInnerHTML={{__html: question.title}} />
+                                      <button class="btn btn-success"  data-id={question.id} onClick={this.handleUpdate}>Update</button> <span> </span>
+                                      <button class="btn btn-danger" data-id={question.id} onClick={this.handleDelete} >Delete</button> <span> </span>
                                     </div>
                                     <div class="panel-body bio-graph-info">
                                         <p class="question-sub"><span>Sub </span>: {question.titleSub} </p>

@@ -26,6 +26,7 @@ export default class QuestionList extends React.Component {
       this.handleSearch = this.handleSearch.bind(this);
       this.handlePageSearch = this.handlePageSearch.bind(this);
       this.handleUpdate = this.handleUpdate.bind(this);
+      this.handleDelete = this.handleDelete.bind(this);
     }
 
     handleSearch() {
@@ -129,6 +130,49 @@ export default class QuestionList extends React.Component {
     handleUpdate(e) {
       var id = e.target.dataset.id;
       this.redirectTo("/question/edit/"+ id);
+    }
+
+    handleDelete(e) {
+      var CONFIRM_MESSAGE = "You really want to delete this question?";
+      if (!confirm (CONFIRM_MESSAGE)) {
+        return;
+      }
+      var id = e.target.dataset.id;
+      var deleteURL =  "http://localhost:6868/mvcquestion/delete"
+      var deleteData = {
+        id : id
+      }
+
+      var headerObject = {
+        headers: {
+          "Content-Type": "application/json",
+          "access_token": TokenUtil.getToken()
+        }
+      }
+
+      Axios.put(deleteURL, deleteData, headerObject).then (
+        res => {
+        res.data = SecurityUtil.decryptData(res.data.data);
+        var SUCCESS_CODE = 1.1;
+        var QUESTION_IS_IN_EXAM_CODE = 6.1;
+        console.log("res.data: " + res.data);
+        switch (res.data.code) {
+          case SUCCESS_CODE:
+            TokenUtil.resetCookie(TokenUtil.getToken());
+            this.search();
+            this.forceUpdate();
+            break;
+          case QUESTION_IS_IN_EXAM_CODE:
+            alert("Please DELETE EXAM before delete this question!");
+            break;
+          default:
+            alert("Delete fail!");
+        }
+      }).catch(error => {
+          alert("Server Error!: " + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
+      });
     }
 
     redirectTo(url) {
@@ -294,7 +338,7 @@ export default class QuestionList extends React.Component {
                                     <div class="bio-graph-heading question-title">
                                       <div dangerouslySetInnerHTML={{__html: question.title}} />
                                       <button class="btn btn-success"  data-id={question.id} onClick={this.handleUpdate}>Update</button> <span> </span>
-                                      <button class="btn btn-danger" >Delete</button> <span> </span>
+                                      <button class="btn btn-danger" data-id={question.id} onClick={this.handleDelete} >Delete</button> <span> </span>
                                     </div>
                                     <div class="panel-body bio-graph-info">
                                         <p class="question-sub"><span>Sub </span>: {question.titleSub} </p>

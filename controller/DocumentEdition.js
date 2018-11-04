@@ -1,10 +1,11 @@
 import React from 'react';
 import Axios from 'axios';
 import ReactDOM from 'react-dom';
+import Layout from '../Layout';
 import * as TokenUtil from '../util/TokenUtil.js';
 import * as SecurityUtil from '../util/SecurityUtil.js';
 
-export default class DocumentCreate extends React.Component {
+export default class DocumentEdition extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -12,12 +13,48 @@ export default class DocumentCreate extends React.Component {
           content : "",
           topic : 10,
           level : 0,
-          questionIds : []
+          questionIds : [],
+          document : {},
+          updateDocumentId : props.match.params.documentId
         }
 
+        this.initPage();
         TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
         this.handleSubmit = this.handleSubmit.bind(this);
         this.handleChange = this.handleChange.bind(this);
+    }
+
+    initPage() {
+        var url = "http://localhost:6868/document/get/" + this.state.updateDocumentId;
+        var headerObject = {
+          headers: {
+            "Content-Type": "application/json",
+            "access_token": TokenUtil.getToken()
+          }
+        }
+        Axios.get(url, headerObject).then( response => {
+          response.data = SecurityUtil.decryptData(response.data.data);
+          this.state.document = response.data.document;
+          this.state.topic = response.data.document.topic;
+          this.state.level = response.data.document.level;
+
+          var SUCCESS_CODE = 1.1;
+          if (response.data.code == SUCCESS_CODE) {
+            TokenUtil.resetCookie(TokenUtil.getToken());
+          }
+
+          this.forceUpdate();
+          var content = this.state.document.content;
+          
+          CKEDITOR.on('instanceReady', function() {
+             $("#editor").append(content); 
+          });
+
+        }).catch (error => {
+          alert("Server Error :" + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
+        });
     }
 
     handleChange(e) {
@@ -39,17 +76,17 @@ export default class DocumentCreate extends React.Component {
             "access_token": TokenUtil.getToken()
           }
         }
-        var url = "http://localhost:6868/document/create";
+        var url = "http://localhost:6868/document/update";
         if(this.isValidParagraph(this.state.content)) {
-          Axios.post(url, requestData, headerObject).then(response => {
+          Axios.put(url, requestData, headerObject).then(response => {
             response.data = SecurityUtil.decryptData(response.data.data);
-            var alertStr = response.data.code == 1.1 ? "Insert success!" : "Insert fail!";
+            var alertStr = response.data.code == 1.1 ? "Update success!" : "Update fail!";
             alert(alertStr);
             var SUCCESS_CODE = 1.1;
             if (response.data.code == SUCCESS_CODE) {
               TokenUtil.resetCookie(TokenUtil.getToken());
             }
-            this.redirectTo("/document/" + response.data.id + "/insertquestion");
+            this.redirectTo("/document/" + this.state.updateDocumentId);
             }).catch (error => {
                 alert("Server Error!: " + error);
                 TokenUtil.deleteCookie();
@@ -60,8 +97,8 @@ export default class DocumentCreate extends React.Component {
 
     prepareRequestData() {
         return {
+            id : this.state.updateDocumentId,
             content : this.state.content,
-            questionIds : this.state.questionIds,
             topic : this.state.topic,
             level : this.state.level
         }
@@ -104,12 +141,13 @@ export default class DocumentCreate extends React.Component {
 
     render() {
         return (
+        <Layout>
         <div class="row">
           <div class="col-lg-12">
             <section class="panel">
               {/* Header title */}
               <header class="panel-heading">
-                Create
+                Update
               </header>
               <div class="panel-body">
                 <div class="form">
@@ -130,7 +168,11 @@ export default class DocumentCreate extends React.Component {
                       <div class="col-lg-4">
                         <select name="topic" class="form-control m-bot15" onChange={this.handleChange}>
                             {this.state.initData.defaultTopic.map((topic) => {
-                              return <option value={topic.value}>{topic.name}</option>
+                                if (topic.value == this.state.document.topic) {
+                                    return <option value={topic.value} selected>{topic.name}</option>
+                                } else {
+                                    return <option value={topic.value}>{topic.name}</option>
+                                }
                             })}
                             {this.initData}
                         </select>
@@ -142,7 +184,11 @@ export default class DocumentCreate extends React.Component {
                       <div class="col-lg-4">
                         <select name="level" class="form-control m-bot15" onChange={this.handleChange}>
                             {this.state.initData.defaultLevel.map((level) => {
-                              return <option value={level.value}>{level.name}</option>
+                                if (level.value == this.state.document.level) {
+                                    return <option value={level.value} selected>{level.name}</option>
+                                } else {
+                                    return <option value={level.value}>{level.name}</option>
+                                }
                             })}
                         </select>
                       </div>
@@ -159,6 +205,7 @@ export default class DocumentCreate extends React.Component {
             </section>
           </div>
         </div>
+        </Layout>
         );
     }
 }

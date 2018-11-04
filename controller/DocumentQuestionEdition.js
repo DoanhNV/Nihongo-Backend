@@ -6,7 +6,7 @@ import { BrowserRouter as Router, Switch, Route, Link, browerHistory } from 'rea
 import * as TokenUtil from '../util/TokenUtil.js';
 import * as SecurityUtil from '../util/SecurityUtil.js';
 
-export default class DocumentQuestionCreate extends React.Component {
+export default class DocumentQuestionEdition extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -16,7 +16,10 @@ export default class DocumentQuestionCreate extends React.Component {
           subTitle: "",
           topicMode : 0,
           documentId : props.match.params.documentId,
-          document : {}
+          document : {},
+          updateDQuestionId : props.match.params.questionId,
+          question : {},
+          answers : []
         }
 
         TokenUtil.redirectWhenNotExistToken(TokenUtil.getToken());
@@ -27,6 +30,7 @@ export default class DocumentQuestionCreate extends React.Component {
 
     initPage() {
       this.getParagraph();
+      this.getQuestion();
     }
 
     getParagraph() {
@@ -53,6 +57,37 @@ export default class DocumentQuestionCreate extends React.Component {
       });
     }
 
+    getQuestion() {
+        var url = "http://localhost:6868/mvcquestion/detail/" + this.state.updateDQuestionId;
+        var headerObject = {
+          headers: {
+            "Content-Type": "application/json",
+            "access_token": TokenUtil.getToken()
+          }
+        }
+        Axios.get(url, headerObject).then( response => {
+          console.log(response.data);
+          response.data = SecurityUtil.decryptData(response.data.data);
+          this.state.question = response.data.question;
+          this.state.answers = this.state.question.answers;
+          this.state.subTitle = this.state.question.titleSub;
+          
+          var SUCCESS_CODE = 1.1;
+          if (response.data.code == SUCCESS_CODE) {
+            TokenUtil.resetCookie(TokenUtil.getToken());
+          }
+          this.forceUpdate();
+          var title = this.state.question.title;
+          CKEDITOR.on('instanceReady', function() {
+            $("#editor").append(title); 
+         });
+        }).catch (error => {
+          alert("Server Error :" + error);
+          TokenUtil.deleteCookie();
+          TokenUtil.redirectTo("/login");
+        });
+      }
+
     handleChange(e) {
       var name = e.target.name;
       var value = e.target.value;
@@ -64,39 +99,30 @@ export default class DocumentQuestionCreate extends React.Component {
 
     async handleSubmit(e) {
       var formData = this.getFormData();
-      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
-      var updateQuestionListURL = "http://localhost:6868/document/update";
+      var updateQuestionURL = "http://localhost:6868/mvcquestion/update";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
           "access_token": TokenUtil.getToken()
         }
       }
+
       if(this.isValidData(formData)) {
         var data  = this.preparePostData(formData);
-        console.log("insertData: "  + data);
-        Axios.post(createQuestionURL, data, headerObject).then (
+        Axios.put(updateQuestionURL, data, headerObject).then (
           res => {
             res.data = SecurityUtil.decryptData(res.data.data);
-            if(res.data.code == 1.1) {
-              var updateData = this.prepareUpdateData(res.data.id);
-              console.log("updateData: "  + updateData);
-              Axios.put(updateQuestionListURL, updateData, headerObject).then (
-                res => {
-                res.data = SecurityUtil.decryptData(res.data.data);
-                var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
-                alert(alertStr);
-                var SUCCESS_CODE = 1.1;
-                if (res.data.code == SUCCESS_CODE) {
-                  TokenUtil.resetCookie(TokenUtil.getToken());
-                }
-                this.clearData();
-              }).catch(error => {
-                  alert("Server Error!: " + error);
-                  TokenUtil.deleteCookie();
-                  TokenUtil.redirectTo("/login");
-              });
+            var SUCCESS_CODE = 1.1;
+            var alertMessage = "";
+
+            if (res.data.code == SUCCESS_CODE) {
+                alertMessage = "Update success!";
+                TokenUtil.resetCookie(TokenUtil.getToken());
+            } else {
+                alertMessage = "Update fail!";
             }
+
+            alert(alertMessage);
         }).catch(error => {
             alert("Server Error!: " + error);
             TokenUtil.deleteCookie();
@@ -108,6 +134,7 @@ export default class DocumentQuestionCreate extends React.Component {
 
     preparePostData(formData) {
       return {
+        id : this.state.updateDQuestionId,
         title : formData.htmlTitle,
         topic : this.state.document.topic,
         level : this.state.document.level,
@@ -249,7 +276,7 @@ export default class DocumentQuestionCreate extends React.Component {
             <section class="panel">
               {/* Header title */}
               <header class="panel-heading">
-                Create
+                Update
               </header>
               <div class="panel-body">
                 <div class="form">
@@ -268,7 +295,7 @@ export default class DocumentQuestionCreate extends React.Component {
                     <div id="subTitleDiv" class="form-group">
                         <label class="control-label col-lg-1" for="exampleInputFile">Sub for Question</label>
                         <div class="col-lg-10">
-                          <input type="text" id="subTitleID" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
+                          <input type="text" defaultValue={this.state.question.titleSub} id="subTitleID" name="subTitle" class="form-control" onChange={this.handleChange} placeholder="placeholder" />
                         </div>
                     </div>
                     {/* Answers */}
@@ -276,12 +303,12 @@ export default class DocumentQuestionCreate extends React.Component {
                       <label class="control-label col-lg-1" for="inputSuccess"><b>Answer</b></label>
                       <div class="col-lg-10">
                         {
-                          Array(this.state.initData.defaultAnswerNumber).fill().map((i) => {
+                          this.state.answers.map((answer, i) => {
                             return (
                                   <div class="radio">
                                     <label>
-                                      <input type="radio" name="correctvalues"  class="isCorrects" value={i}/>
-                                      <input class=" form-control" id="answers" name="answers" type="text"/>
+                                      <input type="radio" defaultChecked={answer.isCorrect} name="correctvalues"  class="isCorrects"/>
+                                      <input type="text" defaultValue={answer.content} class=" form-control" id="answers" name="answers"/>
                                     </label>
                                   </div>
                               );
