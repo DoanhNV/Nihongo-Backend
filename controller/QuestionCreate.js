@@ -28,7 +28,6 @@ export default class QuestionCreate extends React.Component {
     }
 
     initPage() {
-      alert($.cookie("token"));
     }
 
     handleChange(e) {

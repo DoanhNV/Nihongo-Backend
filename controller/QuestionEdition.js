@@ -205,7 +205,7 @@ export default class QuestionEdition extends React.Component {
       Axios.put(url, data, headerObject).then (
           res => {
           res.data = SecurityUtil.decryptData(res.data.data);
-          var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
+          var alertStr = res.data.code == 1.1 ? "Update success!" : "Update Fail!";
           alert(alertStr);
           var SUCCESS_CODE = 1.1;
           if (res.data.code == SUCCESS_CODE) {

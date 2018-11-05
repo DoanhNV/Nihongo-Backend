@@ -168,7 +168,7 @@ export default class DocumentDetail extends React.Component {
         switch (responseCode) {
           case SUCCESS_CODE:
             TokenUtil.resetCookie(TokenUtil.getToken());
-            this.search();
+            this.search(headerObject);
             this.forceUpdate();
             break;
           default:
