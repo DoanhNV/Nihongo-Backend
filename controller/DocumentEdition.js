@@ -25,7 +25,7 @@ export default class DocumentEdition extends React.Component {
     }
 
     initPage() {
-        var url = "http://localhost:6868/document/get/" + this.state.updateDocumentId;
+        var url = "http://nihongojp.com:6868/document/get/" + this.state.updateDocumentId;
         var headerObject = {
           headers: {
             "Content-Type": "application/json",
@@ -33,7 +33,7 @@ export default class DocumentEdition extends React.Component {
           }
         }
         Axios.get(url, headerObject).then( response => {
-          response.data = SecurityUtil.decryptData(response.data.data);
+          //response.data = SecurityUtil.decryptData(response.data.data);
           this.state.document = response.data.document;
           this.state.topic = response.data.document.topic;
           this.state.level = response.data.document.level;
@@ -76,10 +76,10 @@ export default class DocumentEdition extends React.Component {
             "access_token": TokenUtil.getToken()
           }
         }
-        var url = "http://localhost:6868/document/update";
+        var url = "http://nihongojp.com:6868/document/update";
         if(this.isValidParagraph(this.state.content)) {
           Axios.put(url, requestData, headerObject).then(response => {
-            response.data = SecurityUtil.decryptData(response.data.data);
+            //response.data = SecurityUtil.decryptData(response.data.data);
             var alertStr = response.data.code == 1.1 ? "Update success!" : "Update fail!";
             alert(alertStr);
             var SUCCESS_CODE = 1.1;

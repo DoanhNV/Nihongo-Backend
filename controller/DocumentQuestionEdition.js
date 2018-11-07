@@ -34,7 +34,7 @@ export default class DocumentQuestionEdition extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      var url = "http://nihongojp.com:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default class DocumentQuestionEdition extends React.Component {
       }
       Axios.get(url, headerObject).then( response => {
         console.log(response.data);
-        response.data = SecurityUtil.decryptData(response.data.data);
+        //response.data = SecurityUtil.decryptData(response.data.data);
         this.state.document = response.data.document;
         var SUCCESS_CODE = 1.1;
         if (response.data.code == SUCCESS_CODE) {
@@ -58,7 +58,7 @@ export default class DocumentQuestionEdition extends React.Component {
     }
 
     getQuestion() {
-        var url = "http://localhost:6868/mvcquestion/detail/" + this.state.updateDQuestionId;
+        var url = "http://nihongojp.com:6868/mvcquestion/detail/" + this.state.updateDQuestionId;
         var headerObject = {
           headers: {
             "Content-Type": "application/json",
@@ -67,7 +67,7 @@ export default class DocumentQuestionEdition extends React.Component {
         }
         Axios.get(url, headerObject).then( response => {
           console.log(response.data);
-          response.data = SecurityUtil.decryptData(response.data.data);
+          //response.data = SecurityUtil.decryptData(response.data.data);
           this.state.question = response.data.question;
           this.state.answers = this.state.question.answers;
           this.state.subTitle = this.state.question.titleSub;
@@ -99,7 +99,7 @@ export default class DocumentQuestionEdition extends React.Component {
 
     async handleSubmit(e) {
       var formData = this.getFormData();
-      var updateQuestionURL = "http://localhost:6868/mvcquestion/update";
+      var updateQuestionURL = "http://nihongojp.com:6868/mvcquestion/update";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -111,7 +111,7 @@ export default class DocumentQuestionEdition extends React.Component {
         var data  = this.preparePostData(formData);
         Axios.put(updateQuestionURL, data, headerObject).then (
           res => {
-            res.data = SecurityUtil.decryptData(res.data.data);
+            //res.data = SecurityUtil.decryptData(res.data.data);
             var SUCCESS_CODE = 1.1;
             var alertMessage = "";
 

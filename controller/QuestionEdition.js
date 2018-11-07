@@ -34,7 +34,7 @@ export default class QuestionEdition extends React.Component {
     }
 
     initPage() {
-      var url = "http://localhost:6868/mvcquestion/detail/" + this.state.updateQuestionId;
+      var url = "http://nihongojp.com:6868/mvcquestion/detail/" + this.state.updateQuestionId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -43,7 +43,7 @@ export default class QuestionEdition extends React.Component {
       }
       
       Axios.get(url, headerObject).then( response => {
-        response.data = SecurityUtil.decryptData(response.data.data);
+        //response.data = SecurityUtil.decryptData(response.data.data);
         console.log("response.data: " + response.data);
         var SUCCESS_CODE = 1.1;
         if (response.data.code == SUCCESS_CODE) {
@@ -54,7 +54,7 @@ export default class QuestionEdition extends React.Component {
           var htmlTitle = this.state.question.title;
 
           if(this.state.question.document.endsWith(".png")) {
-            var uploadFileURL = "http://localhost:6868/file/load/base64";
+            var uploadFileURL = "http://nihongojp.com:6868/file/load/base64";
             var documentFile = { filePath : this.state.question.document};
 
             var headerObject = {
@@ -65,7 +65,7 @@ export default class QuestionEdition extends React.Component {
             }
 
             Axios.post(uploadFileURL, documentFile, headerObject).then ( res => {
-              res.data = SecurityUtil.decryptData(res.data.data);
+              //res.data = SecurityUtil.decryptData(res.data.data);
               var SUCCESS_CODE = 1.1;
               if (res.data.code == SUCCESS_CODE) {
                 TokenUtil.resetCookie(TokenUtil.getToken());
@@ -120,8 +120,8 @@ export default class QuestionEdition extends React.Component {
       
       var formData = this.getFormData();
       
-      var uploadFileURL = "http://localhost:6868/file/upload/base64";
-      var updateQuestionURL = "http://localhost:6868/mvcquestion/update";
+      var uploadFileURL = "http://nihongojp.com:6868/file/upload/base64";
+      var updateQuestionURL = "http://nihongojp.com:6868/mvcquestion/update";
       var base64Data =  $("#base64").val();
       if(this.isValidData(formData)) {
         var uploadData = this.prepareUploadImageData();
@@ -137,14 +137,14 @@ export default class QuestionEdition extends React.Component {
           }
           Axios.post(uploadFileURL, uploadData, headerObject).then(res => {
             alert("Done upload");
-            res.data = SecurityUtil.decryptData(res.data.data);
+            //res.data = SecurityUtil.decryptData(res.data.data);
             console.log("uploadFile: " +  res.data.code);
             var data  = this.preparePostData(formData, res.data.filePath);
             console.log(data);
 
             Axios.put(updateQuestionURL, data, headerObject).then (
                 res => {
-                res.data = SecurityUtil.decryptData(res.data.data);
+                //res.data = SecurityUtil.decryptData(res.data.data);
                 var alertStr = res.data.code == 1.1 ? "Update success!" : "Update Fail!";
                 alert(alertStr);
                 var SUCCESS_CODE = 1.1;
@@ -204,7 +204,7 @@ export default class QuestionEdition extends React.Component {
       }
       Axios.put(url, data, headerObject).then (
           res => {
-          res.data = SecurityUtil.decryptData(res.data.data);
+          //res.data = SecurityUtil.decryptData(res.data.data);
           var alertStr = res.data.code == 1.1 ? "Update success!" : "Update Fail!";
           alert(alertStr);
           var SUCCESS_CODE = 1.1;

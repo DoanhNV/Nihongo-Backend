@@ -27,7 +27,7 @@ class ExamCreate extends React.Component {
     handleSubmit(e) {
         e.preventDefault();
         var createData = this.prepareRequestData();
-        var url = "http://35.240.130.216:6868/exam/create/random";
+        var url = "http://nihongojp.com:6868/exam/create/random";
         var headerObject = {
           headers: {
             "Content-Type": "application/json",
@@ -35,7 +35,7 @@ class ExamCreate extends React.Component {
           }
         }
         Axios.post(url, createData, headerObject).then(response => {
-            response.data = SecurityUtil.decryptData(response.data.data);
+            //response.data = SecurityUtil.decryptData(response.data.data);
             var alertStr = "";
             var responceCode = response.data.code; 
             if(responceCode == 1.1) {

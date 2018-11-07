@@ -30,7 +30,7 @@ export default class DocumentQuestionCreate extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      var url = "http://nihongojp.com:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -39,7 +39,7 @@ export default class DocumentQuestionCreate extends React.Component {
       }
       Axios.get(url, headerObject).then( response => {
         console.log(response.data);
-        response.data = SecurityUtil.decryptData(response.data.data);
+        //response.data = SecurityUtil.decryptData(response.data.data);
         this.state.document = response.data.document;
         var SUCCESS_CODE = 1.1;
         if (response.data.code == SUCCESS_CODE) {
@@ -64,8 +64,8 @@ export default class DocumentQuestionCreate extends React.Component {
 
     async handleSubmit(e) {
       var formData = this.getFormData();
-      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
-      var updateQuestionListURL = "http://localhost:6868/document/update";
+      var createQuestionURL = "http://nihongojp.com:6868/mvcquestion/create";
+      var updateQuestionListURL = "http://nihongojp.com:6868/document/update";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -77,13 +77,13 @@ export default class DocumentQuestionCreate extends React.Component {
         console.log("insertData: "  + data);
         Axios.post(createQuestionURL, data, headerObject).then (
           res => {
-            res.data = SecurityUtil.decryptData(res.data.data);
+            //res.data = SecurityUtil.decryptData(res.data.data);
             if(res.data.code == 1.1) {
               var updateData = this.prepareUpdateData(res.data.id);
               console.log("updateData: "  + updateData);
               Axios.put(updateQuestionListURL, updateData, headerObject).then (
                 res => {
-                res.data = SecurityUtil.decryptData(res.data.data);
+                //res.data = SecurityUtil.decryptData(res.data.data);
                 var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
                 alert(alertStr);
                 var SUCCESS_CODE = 1.1;

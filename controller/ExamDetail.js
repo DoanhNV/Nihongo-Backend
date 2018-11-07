@@ -46,7 +46,7 @@ export default class ExamDetail extends React.Component {
     getDetailExam() {
       var examId =  this.state.examId;
       var backendMode = 0;
-      var url = "http://35.240.130.216:6868/exam/detail/" + examId  + "/" + backendMode;
+      var url = "http://nihongojp.com:6868/exam/detail/" + examId  + "/" + backendMode;
       this.getServerQuestion(url);
     }
 
@@ -59,7 +59,7 @@ export default class ExamDetail extends React.Component {
         }
         Axios.get(url, headerObject).then (
             response => {
-            response.data = SecurityUtil.decryptData(response.data.data);
+            //response.data = SecurityUtil.decryptData(response.data.data);
             var SUCCESS_CODE = 1.1;
             if(response.data.code == SUCCESS_CODE) {
                 this.state.exam = response.data.exam;
@@ -90,7 +90,7 @@ export default class ExamDetail extends React.Component {
                         : field === "completedMinutes" ?  $("#txtCompletedMinutes").val() 
                             : e.target.dataset.value == 'true' ? 'false' : 'true';
         var css = Number(e.target.dataset.cssdata);
-        var url = "http://35.240.130.216:6868/exam/update/" + examId;
+        var url = "http://nihongojp.com:6868/exam/update/" + examId;
         var headerObject = {
             headers: {
               "Content-Type": "application/json",
@@ -106,7 +106,7 @@ export default class ExamDetail extends React.Component {
             }
         }
         Axios.put(url, updateData, headerObject).then((response) => {  
-            response.data = SecurityUtil.decryptData(response.data.data);
+            //response.data = SecurityUtil.decryptData(response.data.data);
             console.log(response.data);
             var code = response.data.code;
             var SUCCESS_CODE = 1.1;

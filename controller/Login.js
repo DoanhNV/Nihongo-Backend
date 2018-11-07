@@ -30,7 +30,7 @@ class Login extends React.Component {
     login() {
         
         if (this.isValidLoginData()) {
-            var url = "http://localhost:6868/user/login";
+            var url = "http://nihongojp.com:6868/user/login";
             var query = this.prepareQueryData();
             this.postToServer(url, query);
         }
@@ -38,7 +38,7 @@ class Login extends React.Component {
 
     postToServer(url, query) {
         Axios.post(url, query).then(response => {
-            response.data = SecurityUtil.decryptData(response.data.data);
+            //response.data = SecurityUtil.decryptData(response.data.data);
             var SUCCESS_CODE = 1.1;
             var NOT_EXIST_USER_CODE = 2.5;
             var code = response.data.code;

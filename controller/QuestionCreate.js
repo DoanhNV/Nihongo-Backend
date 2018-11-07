@@ -54,15 +54,15 @@ export default class QuestionCreate extends React.Component {
     async handleSubmit(e) {
       var formData = this.getFormData();
       
-      var uploadFileURL = "http://localhost:6868/file/upload/base64";
-      var createQuestionURL = "http://localhost:6868/mvcquestion/create";
+      var uploadFileURL = "http://nihongojp.com:6868/file/upload/base64";
+      var createQuestionURL = "http://nihongojp.com:6868/mvcquestion/create";
       var base64Data =  $("#base64").val();
       if(this.isValidData(formData)) {
         var uploadData = this.prepareUploadImageData();
         if( this.state.topicMode == 7 && base64Data != "") {
           var uploadResponse = this.uploadFileToServer(uploadFileURL, uploadData);
           uploadResponse.then(res => {
-            res.data = SecurityUtil.decryptData(res.data.data);
+            //res.data = SecurityUtil.decryptData(res.data.data);
             console.log("uploadFile: " +  res.data.code);
             var data  = this.preparePostData(formData, res.data.filePath);
             console.log(data);
@@ -109,7 +109,7 @@ export default class QuestionCreate extends React.Component {
       }
       Axios.post(url, data, headerObject).then (
           res => {
-          res.data = SecurityUtil.decryptData(res.data.data);
+          //res.data = SecurityUtil.decryptData(res.data.data);
           var alertStr = res.data.code == 1.1 ? "Insert success!" : "Insert Fail!";
           alert(alertStr);
           var SUCCESS_CODE = 1.1;

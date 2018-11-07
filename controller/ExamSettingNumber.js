@@ -65,7 +65,7 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     getData() {
-      var url = "http://35.240.130.216:6868/setting/exam/list";
+      var url = "http://nihongojp.com:6868/setting/exam/list";
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -74,7 +74,7 @@ export default class ExamSettingNumber extends React.Component {
       }
       Axios.get(url, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         this.state.examSettings = res.data.examSettings;
         console.log(res);
         var SUCCESS_CODE = 1.1;
@@ -90,7 +90,7 @@ export default class ExamSettingNumber extends React.Component {
     }
 
     updateData(id, level, inputClassDom) {
-      var url = "http://35.240.130.216:6868/setting/exam/set/number";
+      var url = "http://nihongojp.com:6868/setting/exam/set/number";
       var data = this.prepareUpdateData(id, level, inputClassDom);
       var headerObject = {
         headers: {

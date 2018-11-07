@@ -76,7 +76,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     getParagraph() {
-      var url = "http://localhost:6868/document/get/" + this.state.documentId;
+      var url = "http://nihongojp.com:6868/document/get/" + this.state.documentId;
       var headerObject = {
         headers: {
           "Content-Type": "application/json",
@@ -84,7 +84,7 @@ export default class DocumentDetail extends React.Component {
         }
       }
       Axios.get(url, headerObject).then( response => {
-        response.data = SecurityUtil.decryptData(response.data.data);
+        //response.data = SecurityUtil.decryptData(response.data.data);
         this.state.document = response.data.document;
         this.state.total = response.data.document.questionIds.length;
         var SUCCESS_CODE = 1.1;
@@ -101,7 +101,7 @@ export default class DocumentDetail extends React.Component {
     }
 
     search(headerObject) {
-      var url = "http://localhost:6868/mvcquestion/list";
+      var url = "http://nihongojp.com:6868/mvcquestion/list";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData, headerObject);
     }
@@ -109,7 +109,7 @@ export default class DocumentDetail extends React.Component {
     getServerQuestion(url, query, headerObject) {
       Axios.post(url, query, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         this.state.questions = res.data.questions;
         var SUCCESS_CODE = 1.1;
         if (res.data.code == SUCCESS_CODE) {
@@ -145,7 +145,7 @@ export default class DocumentDetail extends React.Component {
         return;
       }
       var id = e.target.dataset.id;
-      var deleteURL =  "http://localhost:6868/mvcquestion/deleteDQuestion"
+      var deleteURL =  "http://nihongojp.com:6868/mvcquestion/deleteDQuestion"
       var deleteData = {
         id : id,
         documentId : this.state.documentId
@@ -160,7 +160,7 @@ export default class DocumentDetail extends React.Component {
 
       Axios.put(deleteURL, deleteData, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         var SUCCESS_CODE = 1.1;
         var DOCUMENT_IS_IN_EXAM_CODE = 6.2;
         console.log("res.data: " + res.data);

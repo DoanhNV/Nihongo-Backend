@@ -73,7 +73,7 @@ export default class DocumentList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/document/search";
+      var url = "http://nihongojp.com:6868/document/search";
       var queryData = this.prepareQueryData();
       this.getServerQuestion(url, queryData);
     }
@@ -87,7 +87,7 @@ export default class DocumentList extends React.Component {
       }
       Axios.post(url, query, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         this.state.documents = res.data.documents;
         this.state.total = res.data.total;
         var SUCCESS_CODE = 1.1;
@@ -140,7 +140,7 @@ export default class DocumentList extends React.Component {
         return;
       }
       var id = e.target.dataset.id;
-      var deleteURL =  "http://localhost:6868/document/delete"
+      var deleteURL =  "http://nihongojp.com:6868/document/delete"
       var deleteData = {
         id : id
       }
@@ -154,7 +154,7 @@ export default class DocumentList extends React.Component {
 
       Axios.put(deleteURL, deleteData, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         var SUCCESS_CODE = 1.1;
         var DOCUMENT_IS_IN_EXAM_CODE = 6.2;
         console.log("res.data: " + res.data);

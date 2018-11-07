@@ -73,7 +73,7 @@ export default class QuestionList extends React.Component {
     }
 
     search() {
-      var url = "http://localhost:6868/mvcquestion/search";
+      var url = "http://nihongojp.com:6868/mvcquestion/search";
       var queryData = this.prepareQueryData();
       var headerObject = {
         headers: {
@@ -87,7 +87,7 @@ export default class QuestionList extends React.Component {
     getServerQuestion(url, query, headerObject) {
       Axios.post(url, query, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         var SUCCESS_CODE = 1.1;
         console.log("res.data: " + res.data);
         if (res.data.code == SUCCESS_CODE) {
@@ -138,7 +138,7 @@ export default class QuestionList extends React.Component {
         return;
       }
       var id = e.target.dataset.id;
-      var deleteURL =  "http://localhost:6868/mvcquestion/delete"
+      var deleteURL =  "http://nihongojp.com:6868/mvcquestion/delete"
       var deleteData = {
         id : id
       }
@@ -152,7 +152,7 @@ export default class QuestionList extends React.Component {
 
       Axios.put(deleteURL, deleteData, headerObject).then (
         res => {
-        res.data = SecurityUtil.decryptData(res.data.data);
+        //res.data = SecurityUtil.decryptData(res.data.data);
         var SUCCESS_CODE = 1.1;
         var QUESTION_IS_IN_EXAM_CODE = 6.1;
         console.log("res.data: " + res.data);
@@ -182,7 +182,7 @@ export default class QuestionList extends React.Component {
     fillImage(question) {
       if(question.document !== null) {
         var isImage = question.document.endsWith(".png");
-        var uploadFileURL = "http://localhost:6868/file/load/base64";
+        var uploadFileURL = "http://nihongojp.com:6868/file/load/base64";
         var documentFile = { filePath : question.document};
         var headerObject = {
           headers: {
@@ -192,7 +192,7 @@ export default class QuestionList extends React.Component {
         }
         if(isImage) {
           Axios.post(uploadFileURL, documentFile, headerObject).then ( res => {
-            res.data = SecurityUtil.decryptData(res.data.data);
+            //res.data = SecurityUtil.decryptData(res.data.data);
             var SUCCESS_CODE = 1.1;
             if (res.data.code == SUCCESS_CODE) {
               TokenUtil.resetCookie(TokenUtil.getToken());

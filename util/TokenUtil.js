@@ -9,7 +9,6 @@ export function resetCookie(token) {
 
 export function redirectWhenNotExistToken(token) {
   if(token == null || token === "" || token === "undefined") {
-    alert("token: " + token);
     redirectTo("/login");
   }
 }
